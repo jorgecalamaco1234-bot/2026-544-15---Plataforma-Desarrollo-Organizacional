@@ -1,0 +1,6 @@
+{
+  "name": "plataforma-desarrollo-organizacional",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" }
+}

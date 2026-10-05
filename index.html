@@ -87,6 +87,13 @@ th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font
 .mh{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}.mh h3{margin:0}.close{border:0;background:var(--soft);width:34px;height:34px;border-radius:10px;font-size:18px}
 .toast{position:fixed;right:22px;bottom:70px;background:var(--deep);color:#fff;padding:12px 15px;border-radius:10px;opacity:0;transform:translateY(10px);pointer-events:none;transition:.25s;z-index:50;font-size:13px}.toast.show{opacity:1;transform:none}
 .empty{padding:28px;text-align:center;color:var(--muted)}
+.chat-log{height:340px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding:4px 2px 12px}
+.msg{max-width:85%;padding:10px 13px;border-radius:12px;font-size:14px;line-height:1.5;white-space:pre-wrap;overflow-wrap:anywhere}
+.msg.user{align-self:flex-end;background:var(--blue);color:#fff;border-bottom-right-radius:4px}
+.msg.bot{align-self:flex-start;background:var(--tint);color:var(--ink);border-bottom-left-radius:4px}
+.msg.err{align-self:flex-start;background:#FDECEA;color:#B3261E}
+.chat-form{display:flex;gap:10px}.chat-form .input{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 .foot{margin:34px -34px 0;background:var(--blue);color:#fff;font-size:12px;padding:14px 34px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
 @media(max-width:950px){.sidebar{width:215px}.main{padding:22px 22px 0}.foot{margin:34px -22px 0;padding:14px 22px}.g4{grid-template-columns:repeat(2,1fr)}.hero{grid-template-columns:1fr}.login{grid-template-columns:1fr}.l-art{display:none}}
 @media(max-width:700px){.app{display:block}.sidebar{position:relative;width:100%;height:auto;border-right:0;border-bottom:1px solid var(--line)}.sidebar-foot{position:static;margin-top:18px}.main{padding:18px 18px 0}.foot{margin:34px -18px 0;padding:14px 18px}.g4,.g2,.fg{grid-template-columns:1fr}.s2{grid-column:span 1}.lv{width:92px}.lv small{display:none}}
@@ -194,7 +201,7 @@ th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font
     </section>
 
     <section id="ia" class="page">
-      <div class="sh"><h3>Asistente IA: generación de descripción</h3><span class="tag">Mockup MVP</span></div>
+      <div class="sh"><h3>Asistente IA: generación de descripción</h3><span class="tag">IA con Gemini</span></div>
       <div class="grid g2">
         <div class="card"><h3 style="margin:0 0 16px">Crear borrador asistido</h3>
           <div class="fg">
@@ -203,9 +210,16 @@ th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font
             <div class="field s2"><label>Reporta a</label><select class="select" id="aiParent"></select></div>
             <div class="field s2"><label>Responsabilidades clave</label><textarea class="textarea" id="aiResp">Dar seguimiento a indicadores de calidad; coordinar documentación; apoyar auditorías internas.</textarea></div>
           </div>
-          <div class="toolbar" style="margin-top:14px"><button class="btn primary" onclick="generateAI()">✦ Generar borrador</button><button class="btn" onclick="clearAI()">Limpiar</button></div>
-          <p style="font-size:11px;color:var(--muted);margin-top:13px">El resultado es una simulación para validar la experiencia del MVP. La publicación requiere revisión humana.</p></div>
+          <div class="toolbar" style="margin-top:14px"><button class="btn primary" id="aiGenBtn" onclick="generateAI()">✦ Generar borrador</button><button class="btn" onclick="clearAI()">Limpiar</button></div>
+          <p style="font-size:11px;color:var(--muted);margin-top:13px">El borrador lo redacta la IA. Revísalo y edítalo: nada se publica sin revisión humana.</p></div>
         <div class="card" id="aiResult"></div>
+      </div>
+      <div class="card" style="margin-top:18px">
+        <div class="sh"><h3>Chat con el asistente</h3><button class="btn small" onclick="resetChat()">Nueva conversación</button></div>
+        <div class="chips" id="chatChips"></div>
+        <div class="chat-log" id="chatLog" aria-live="polite"></div>
+        <form class="chat-form" id="chatForm"><input class="input" id="chatInput" placeholder="Pregunta sobre tu organigrama, puestos o competencias..." autocomplete="off" maxlength="1500"><button class="btn primary" id="chatBtn">Enviar</button></form>
+        <p style="font-size:11px;color:var(--muted);margin:10px 0 0">El asistente conoce los puestos registrados en esta plataforma. Sus respuestas son sugerencias que deben revisarse.</p>
       </div>
     </section>
     <footer class="foot"><span>Derechos Reservados | IOT Technologies es parte de Social eThinking S.A. de C.V.</span><span>Proyecto MERKATICS GrowthLab 2026-549</span></footer>
@@ -383,19 +397,34 @@ function renderPuestos(){
   updateStats();
 }
 
-/* asistente IA (simulado) */
+/* asistente IA (Gemini vía /api) */
 const EMPTY='<div class="empty">Completa los datos y pulsa <b>Generar borrador</b>.</div>';
-function generateAI(){
-  const title=$("aiTitle").value.trim()||"Nuevo puesto",dept=$("aiDept").value.trim()||"Área general",base=$("aiResp").value.trim()||"Coordinar actividades del área.";
-  const resp=base.split(/[.;]+/).map(s=>s.trim()).filter(Boolean).slice(0,4).map(s=>s.charAt(0).toUpperCase()+s.slice(1)+".");
+async function api(path,body){
+  let r;
+  try{r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})}
+  catch{throw new Error("Sin conexión con el servidor.")}
+  const d=await r.json().catch(()=>({}));
+  if(!r.ok)throw new Error(d.error||(r.status===404?"El servicio de IA no está disponible en este sitio.":"Error "+r.status+"."));
+  return d;
+}
+async function generateAI(){
+  const title=$("aiTitle").value.trim(),dept=$("aiDept").value.trim(),boss=byId(+$("aiParent").value);
+  if(!title){toast("Escribe el título del puesto.");return}
+  const btn=$("aiGenBtn");btn.disabled=true;btn.textContent="Generando...";
+  $("aiResult").innerHTML='<div class="empty">✦ La IA está redactando el borrador...</div>';
+  let d;
+  try{d=await api("/api/generate",{title,dept,parent:boss?`${boss.name} (${boss.dept})`:"",resp:$("aiResp").value.trim()})}
+  catch(e){$("aiResult").innerHTML=`<div class="empty" style="color:#B3261E">${esc(e.message)}</div>`;return}
+  finally{btn.disabled=false;btn.textContent="✦ Generar borrador"}
+  const list=a=>Array.isArray(a)?a.map(s=>String(s).trim()).filter(Boolean):[];
   const f=(l,i)=>`<div class="field" style="margin-top:10px"><label>${l}</label>${i}</div>`;
   $("aiResult").innerHTML=`<div class="ai-title">Borrador generado: revisa y edita antes de guardar</div><h3 style="margin:5px 0 12px">${esc(title)}</h3>
     ${f("Título del puesto",`<input class="input" id="dTitle" value="${esc(title)}">`)}
-    ${f("Objetivo del puesto",`<textarea class="textarea" id="dObj" style="min-height:60px">Coordinar y dar seguimiento a las actividades de ${esc(dept.toLowerCase())} para contribuir al cumplimiento de los objetivos organizacionales.</textarea>`)}
-    ${f("Responsabilidades propuestas (una por línea)",`<textarea class="textarea" id="dResp" style="min-height:90px">${esc(resp.join("\n"))}</textarea>`)}
-    ${f("Competencias sugeridas (separadas por coma)",`<input class="input" id="dComp" value="Organización y seguimiento, Comunicación efectiva, Análisis y solución de problemas, Trabajo en equipo">`)}
-    ${f("Perfil académico",`<textarea class="textarea" id="dPerfil" style="min-height:60px">Licenciatura o TSU en área afín a ${esc(dept)}; 2 a 3 años de experiencia en funciones similares.</textarea>`)}
-    <p style="font-size:11px;color:var(--muted);margin:10px 0 0">Contenido simulado. Nunca se publica sin revisión humana.</p>
+    ${f("Objetivo del puesto",`<textarea class="textarea" id="dObj" style="min-height:60px">${esc(d.objetivo)}</textarea>`)}
+    ${f("Responsabilidades propuestas (una por línea)",`<textarea class="textarea" id="dResp" style="min-height:140px">${esc(list(d.responsabilidades).join("\n"))}</textarea>`)}
+    ${f("Competencias sugeridas (separadas por coma)",`<input class="input" id="dComp" value="${esc(list(d.competencias).join(", "))}">`)}
+    ${f("Perfil académico",`<textarea class="textarea" id="dPerfil" style="min-height:60px">${esc(d.perfil)}</textarea>`)}
+    <p style="font-size:11px;color:var(--muted);margin:10px 0 0">Generado con IA. Nunca se publica sin revisión humana.</p>
     <div class="toolbar" style="margin-top:14px"><button class="btn success" onclick="saveAI('Pendiente')">Guardar para revisión</button><button class="btn primary" onclick="saveAI('Completa')">Revisar y aprobar</button><button class="btn" onclick="copyAI()">Copiar borrador</button></div>`;
 }
 function saveAI(status){
@@ -410,6 +439,24 @@ function copyAI(){
   navigator.clipboard?.writeText(t).then(()=>toast("Borrador copiado.")).catch(()=>toast("No se pudo copiar automáticamente."));
 }
 function clearAI(){$("aiResult").innerHTML=EMPTY}
+
+/* chat con el asistente */
+let chat=[];
+const CHIPS=["¿Qué puestos no tienen descripción completa?","¿Cuántos niveles jerárquicos tenemos?","¿Qué competencias le faltan al área de Calidad?","Sugiere mejoras a la estructura del organigrama"];
+function addMsg(cls,text){const m=document.createElement("div");m.className="msg "+cls;m.textContent=text;$("chatLog").append(m);$("chatLog").scrollTop=$("chatLog").scrollHeight;return m}
+function resetChat(){chat=[];$("chatLog").innerHTML="";addMsg("bot","Hola, soy el asistente de desarrollo organizacional. Pregúntame sobre tu organigrama, los puestos registrados o cómo mejorar una descripción de puesto.")}
+async function sendChat(text){
+  text=text.trim();if(!text||$("chatBtn").disabled)return;
+  $("chatInput").value="";addMsg("user",text);chat.push({role:"user",content:text});
+  $("chatBtn").disabled=true;const wait=addMsg("bot","Escribiendo...");
+  try{const d=await api("/api/chat",{messages:chat,puestos});wait.textContent=d.reply;chat.push({role:"assistant",content:d.reply})}
+  catch(e){wait.className="msg err";wait.textContent=e.message;chat.pop()}
+  finally{$("chatBtn").disabled=false;$("chatInput").focus()}
+}
+$("chatForm").onsubmit=e=>{e.preventDefault();sendChat($("chatInput").value)};
+$("chatChips").innerHTML=CHIPS.map(c=>`<button type="button" class="btn small">${esc(c)}</button>`).join("");
+$("chatChips").onclick=e=>{const b=e.target.closest("button");if(b)sendChat(b.textContent)};
+resetChat();
 function updateStats(){
   $("statDept").textContent=depts().length;$("statPuestos").textContent=puestos.length;
   $("statComplete").textContent=puestos.filter(p=>p.status==="Completa").length;
