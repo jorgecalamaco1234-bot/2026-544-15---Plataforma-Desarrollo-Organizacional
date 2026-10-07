@@ -48,6 +48,8 @@ h2,h3,.hd{font-family:Manrope,"Open Sans",sans-serif}
 .card{background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:20px}
 .stat .label{display:flex;align-items:center;gap:9px;color:var(--muted);font-size:13px}
 .stat .value{font:700 30px Manrope,sans-serif;margin:8px 0 2px;color:var(--deep)}.stat .note{font-size:12px;color:var(--muted)}
+.iso-note{flex-basis:100%;opacity:.9}
+.iso-badge{display:inline-flex;align-items:center;gap:6px;margin-top:4px;padding:6px 10px;border-radius:8px;background:#fff;border:1px solid #CFE6F0;color:var(--deep);font-size:12px;font-weight:600}
 .sh{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap}.sh h3{margin:0;font-size:18px}
 .btn{border:1px solid #B9CAD4;background:#fff;color:var(--ink);padding:10px 14px;border-radius:10px;font-weight:600;font-size:14px}
 .btn:hover{background:var(--tint);border-color:var(--blue)}.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff}.btn.primary:hover{background:var(--deep);border-color:var(--deep)}
@@ -154,7 +156,7 @@ th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font
       <button data-page="puestos"><svg class="i"><use href="#i-doc"/></svg>Descripciones de puesto</button>
       <button data-page="ia"><svg class="i"><use href="#i-ia"/></svg>Asistente IA</button>
     </nav>
-    <div class="sidebar-foot"><span class="mk"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>MERKATICS</span><br>Proyecto 2026-549 · GrowthLab</div>
+    <div class="sidebar-foot"><span class="mk"><svg viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></svg>MERKATICS</span><br>Proyecto 2026-544-15 · GrowthLab</div>
   </aside>
   <main class="main">
     <div class="topbar">
@@ -166,7 +168,8 @@ th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font
       <div class="hero">
         <div><h3>Gobierno organizacional en un solo lugar</h3>
           <p>Prototipo navegable para centralizar organigramas por niveles y descripciones de puesto, con generación asistida por IA como apoyo al usuario.</p>
-          <div class="toolbar"><button class="btn primary" onclick="go('organigrama')">Ver organigrama</button><button class="btn" onclick="go('ia')">Probar asistente IA</button></div></div>
+          <div class="toolbar"><button class="btn primary" onclick="go('organigrama')">Ver organigrama</button><button class="btn" onclick="go('ia')">Probar asistente IA</button></div>
+          <div class="iso-badge" style="margin-top:14px">ⓘ Alineado a la estructura de ISO 9001 · No es un sistema certificado</div></div>
         <div class="ai-box"><div class="ai-title">Vista previa IA</div><div class="ai-line"></div><div class="ai-line"></div><div class="ai-line short"></div><span class="tag">Revisión humana</span></div>
       </div>
       <div class="grid g4">
@@ -222,7 +225,7 @@ th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font
         <p style="font-size:11px;color:var(--muted);margin:10px 0 0">El asistente conoce los puestos registrados en esta plataforma. Sus respuestas son sugerencias que deben revisarse.</p>
       </div>
     </section>
-    <footer class="foot"><span>Derechos Reservados | IOT Technologies es parte de Social eThinking S.A. de C.V.</span><span>Proyecto MERKATICS GrowthLab 2026-549</span></footer>
+    <footer class="foot"><span>Derechos Reservados | IOT Technologies es parte de Social eThinking S.A. de C.V.</span><span>Proyecto MERKATICS GrowthLab 2026-544-15</span><span class="iso-note">Prototipo alineado a la estructura documental de ISO 9001. No es un sistema certificado ISO 9001.</span></footer>
   </main>
 </div>
 <datalist id="deptList"></datalist>
