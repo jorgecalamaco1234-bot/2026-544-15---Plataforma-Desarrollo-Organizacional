@@ -7,7 +7,7 @@ const S = { type: "STRING" };
 const LIST = { type: "ARRAY", items: S };
 const obj = (properties, order = Object.keys(properties)) => ({ type: "OBJECT", properties, required: order, propertyOrdering: order });
 
-const BASE = `Eres especialista en desarrollo organizacional, sistemas de gestión de calidad y recursos humanos en México. Escribes en español neutro, claro y profesional.
+const BASE = `Eres especialista en desarrollo organizacional, sistemas de gestión de calidad y recursos humanos en México. Escribes en español neutro, claro y profesional, con ortografía correcta y acentos.
 No inventes nombres de personas, salarios, cifras legales ni datos confidenciales. No afirmes que algo "cumple" o está "certificado" en ISO 9001: como mucho, que está alineado a su estructura.`;
 
 const puestosTxt = ps => (Array.isArray(ps) && ps.length ? ps.slice(0, 80).map(p => clip(p, 120)).join("; ") : "No hay puestos registrados.");
