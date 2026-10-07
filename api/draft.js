@@ -106,6 +106,7 @@ Puestos de la empresa: ${puestosTxt(b.puestos)}`,
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido." });
+  const trace = [];
   try {
     const body = readBody(req);
     const t = TYPES[body.tipo];
@@ -114,6 +115,7 @@ export default async function handler(req, res) {
     if (!clip(main).trim()) return res.status(400).json({ error: "Faltan datos para generar el borrador." });
 
     const text = await gemini({
+      trace,
       system: t.system,
       schema: t.schema,
       maxOutputTokens: 4096,
@@ -122,8 +124,10 @@ export default async function handler(req, res) {
 
     let out;
     try { out = JSON.parse(text); } catch { throw new HttpError(502, "La IA devolvió un formato inválido. Intenta de nuevo."); }
+    res.setHeader("x-ia-trace", JSON.stringify(trace));
     res.status(200).json(out);
   } catch (err) {
+    if (trace.length) res.setHeader("x-ia-trace", JSON.stringify(trace));
     fail(res, err);
   }
 }

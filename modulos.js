@@ -345,7 +345,9 @@ async function aiForm() {
   m.fields.forEach(f => (cur[f.k] = getField(f)));
   if (!m.ai.need(cur)) { toast(k === "kpis" ? "Escribe el departamento para que la IA proponga KPIs." : "Escribe el nombre o título antes de usar la IA."); return; }
   const btn = $("mfAiBtn");
-  btn.disabled = true; btn.textContent = "Generando..."; $("mfAiMsg").textContent = "La IA está redactando..."; $("mfAiList").innerHTML = "";
+  btn.disabled = true; btn.textContent = "Generando..."; $("mfAiList").innerHTML = "";
+  const t0 = Date.now(), tick = () => ($("mfAiMsg").textContent = `La IA está redactando... ${Math.round((Date.now() - t0) / 1000)} s`);
+  tick(); const timer = setInterval(tick, 1000);
   try {
     const d = await api("/api/draft", m.ai.body(cur, $("mfNotas").value.trim()));
     if (m.ai.list) {
@@ -360,7 +362,7 @@ async function aiForm() {
   } catch (e) {
     $("mfAiMsg").innerHTML = `<span class="err-box">${esc(e.message)}</span>`;
   } finally {
-    btn.disabled = false; btn.textContent = "✦ Generar con IA";
+    clearInterval(timer); btn.disabled = false; btn.textContent = "✦ Generar con IA";
   }
 }
 

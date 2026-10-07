@@ -22,11 +22,13 @@ Reglas:
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido." });
+  const trace = [];
   try {
     const { title, dept, parent, resp } = readBody(req);
     if (!clip(title).trim()) return res.status(400).json({ error: "Falta el título del puesto." });
 
     const text = await gemini({
+      trace,
       system: SYSTEM,
       schema: SCHEMA,
       maxOutputTokens: 4096,
@@ -42,8 +44,10 @@ Responsabilidades clave indicadas por el usuario: ${clip(resp, 2000) || "Ninguna
 
     let out;
     try { out = JSON.parse(text); } catch { throw new HttpError(502, "La IA devolvió un formato inválido. Intenta de nuevo."); }
+    res.setHeader("x-ia-trace", JSON.stringify(trace));
     res.status(200).json(out);
   } catch (err) {
+    if (trace.length) res.setHeader("x-ia-trace", JSON.stringify(trace));
     fail(res, err);
   }
 }
