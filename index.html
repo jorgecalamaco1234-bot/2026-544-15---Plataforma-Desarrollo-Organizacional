@@ -443,13 +443,16 @@ function clearAI(){$("aiResult").innerHTML=EMPTY}
 /* chat con el asistente */
 let chat=[];
 const CHIPS=["¿Qué puestos no tienen descripción completa?","¿Cuántos niveles jerárquicos tenemos?","¿Qué competencias le faltan al área de Calidad?","Sugiere mejoras a la estructura del organigrama"];
-function addMsg(cls,text){const m=document.createElement("div");m.className="msg "+cls;m.textContent=text;$("chatLog").append(m);$("chatLog").scrollTop=$("chatLog").scrollHeight;return m}
+// markdown mínimo y seguro: escapa todo y solo convierte **negritas** y viñetas
+const mdLite=t=>esc(t).replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/^[ \t]*[*-][ \t]+/gm,"• ").replace(/(^|[^*])\*([^*\n]+)\*(?!\*)/g,"$1<i>$2</i>");
+function setMsg(m,text,md){if(md)m.innerHTML=mdLite(text);else m.textContent=text}
+function addMsg(cls,text){const m=document.createElement("div");m.className="msg "+cls;setMsg(m,text,cls==="bot");$("chatLog").append(m);$("chatLog").scrollTop=$("chatLog").scrollHeight;return m}
 function resetChat(){chat=[];$("chatLog").innerHTML="";addMsg("bot","Hola, soy el asistente de desarrollo organizacional. Pregúntame sobre tu organigrama, los puestos registrados o cómo mejorar una descripción de puesto.")}
 async function sendChat(text){
   text=text.trim();if(!text||$("chatBtn").disabled)return;
   $("chatInput").value="";addMsg("user",text);chat.push({role:"user",content:text});
   $("chatBtn").disabled=true;const wait=addMsg("bot","Escribiendo...");
-  try{const d=await api("/api/chat",{messages:chat,puestos});wait.textContent=d.reply;chat.push({role:"assistant",content:d.reply})}
+  try{const d=await api("/api/chat",{messages:chat,puestos});setMsg(wait,d.reply,true);chat.push({role:"assistant",content:d.reply})}
   catch(e){wait.className="msg err";wait.textContent=e.message;chat.pop()}
   finally{$("chatBtn").disabled=false;$("chatInput").focus()}
 }
