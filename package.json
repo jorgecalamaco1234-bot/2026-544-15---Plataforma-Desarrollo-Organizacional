@@ -2,5 +2,18 @@
   "name": "plataforma-desarrollo-organizacional",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" }
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node scripts/dev.mjs"
+  },
+  "dependencies": {
+    "kysely": "^0.29.6",
+    "mysql2": "^3.24.5",
+    "pg": "^8.23.1"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "^0.5.9"
+  }
 }

@@ -1,86 +1,14 @@
 /* Módulos: Procesos ISO, Competencias, Políticas corporativas y KPIs.
-   Usa las utilidades globales de index.html ($, esc, store, puestos, byId, depts, toast, api, go...). */
+   Usa las utilidades globales de index.html ($, esc, puestos, byId, depts, toast, api, can, go...).
+   Los datos se leen y guardan en el servidor (/api/data y /api/items); aquí solo se muestran y editan. */
 
 const ESTADOS = ["Borrador", "En revisión", "Aprobado"];
 const NIVELES = ["Básico", "Intermedio", "Avanzado", "Experto"];
 const tagCls = s => (s === "Aprobado" ? "" : s === "En revisión" ? "warn" : "draft");
-const hoy = () => new Date().toLocaleDateString("es-MX", { day: "2-digit", month: "short", year: "numeric" });
-const usuario = () => $("uName").textContent || "Usuario";
 const arr = a => (Array.isArray(a) ? a : []);
 const pName = id => byId(+id)?.name || "";
 const pIdByName = n => puestos.find(p => p.name.toLowerCase() === String(n || "").trim().toLowerCase())?.id || "";
-const abbr = d => (String(d || "GEN").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z ]/g, "").split(" ").filter(w => w.length > 2)[0] || "GEN").slice(0, 3).toUpperCase();
 const bullets = a => (arr(a).length ? `<ul class="ul">${arr(a).map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : "<em>Sin registrar.</em>");
-const hist = (v, nota) => ({ v, fecha: hoy(), autor: usuario(), nota });
-
-/* ---------- datos de ejemplo ---------- */
-const HI = (v, fecha, autor, nota) => ({ v, fecha, autor, nota });
-const SEED = {
-  procesos: [
-    { id: 1, codigo: "PR-CAL-01", nombre: "Control de documentos", dept: "Calidad", responsable: 5, version: 2, estado: "Aprobado", aprobadoPor: "Marta Soto", aprobadoEl: "15 sept 2026",
-      objetivo: "Asegurar que los documentos del sistema de gestión estén identificados, revisados, aprobados y disponibles en su versión vigente.",
-      alcance: "Aplica a procedimientos, instructivos y formatos de todas las áreas de la empresa.",
-      entradas: ["Solicitud de alta o cambio de documento", "Documento en borrador"], salidas: ["Documento aprobado y publicado", "Lista maestra de documentos actualizada"],
-      pasos: [{ actividad: "Solicitar el alta o cambio del documento", responsable: "Analista de Calidad" }, { actividad: "Redactar o actualizar el borrador", responsable: "Coordinador de Calidad" }, { actividad: "Revisar el contenido con el área dueña", responsable: "Gerente de Calidad" }, { actividad: "Aprobar y asignar versión", responsable: "Gerente de Calidad" }, { actividad: "Publicar y retirar la versión obsoleta", responsable: "Coordinador de Calidad" }, { actividad: "Actualizar la lista maestra de documentos", responsable: "Analista de Calidad" }],
-      indicadores: ["% de documentos vigentes", "Días promedio de aprobación"],
-      historial: [HI(1, "02 jun 2026", "Marta Soto", "Creado"), HI(1, "05 jun 2026", "Marta Soto", "Aprobado"), HI(2, "12 sept 2026", "Marta Soto", "Nueva versión: se agregó la lista maestra"), HI(2, "15 sept 2026", "Marta Soto", "Aprobado")] },
-    { id: 2, codigo: "PR-REC-01", nombre: "Reclutamiento y selección", dept: "Recursos Humanos", responsable: 3, version: 1, estado: "En revisión",
-      objetivo: "Cubrir las vacantes con candidatos que cumplan el perfil del puesto en el menor tiempo posible.",
-      alcance: "Aplica a todas las vacantes, desde la solicitud del área hasta la contratación.",
-      entradas: ["Requisición de personal", "Descripción de puesto vigente"], salidas: ["Candidato contratado", "Expediente integrado"],
-      pasos: [{ actividad: "Recibir y validar la requisición de personal", responsable: "Especialista de RH" }, { actividad: "Publicar la vacante", responsable: "Especialista de RH" }, { actividad: "Filtrar candidatos contra el perfil", responsable: "Especialista de RH" }, { actividad: "Entrevistar a los finalistas", responsable: "Gerente de Recursos Humanos" }, { actividad: "Presentar la oferta y contratar", responsable: "Gerente de Recursos Humanos" }],
-      indicadores: ["Días para cubrir una vacante"], historial: [HI(1, "28 sept 2026", "Luis Mena", "Creado"), HI(1, "30 sept 2026", "Luis Mena", "Enviado a revisión")] },
-    { id: 3, codigo: "PR-OPE-01", nombre: "Atención de no conformidades en producción", dept: "Operaciones", responsable: 8, version: 1, estado: "Borrador",
-      objetivo: "Contener, analizar y corregir los productos no conformes detectados en la línea.",
-      alcance: "Aplica a las líneas de producción y al producto en proceso.", entradas: ["Reporte de producto no conforme"], salidas: ["Acción correctiva registrada"],
-      pasos: [{ actividad: "Detectar y separar el producto no conforme", responsable: "Líder de Producción" }, { actividad: "Registrar la no conformidad", responsable: "Supervisor de Operaciones" }, { actividad: "Analizar la causa raíz", responsable: "Analista de Calidad" }, { actividad: "Definir y aplicar la acción correctiva", responsable: "Supervisor de Operaciones" }],
-      indicadores: ["% de producto no conforme"], historial: [HI(1, "03 oct 2026", "Marta Soto", "Creado")] },
-  ],
-  competencias: [
-    { id: 1, codigo: "CMP-01", nombre: "Liderazgo", tipo: "Directiva", estado: "Aprobado", version: 1, puestos: [1, 7], aprobadoPor: "Luis Mena", aprobadoEl: "10 sept 2026",
-      descripcion: "Capacidad para orientar, motivar y desarrollar a un equipo hacia el logro de objetivos comunes.",
-      niveles: ["Coordina tareas de su equipo cuando se le solicita.", "Asigna responsabilidades y da seguimiento a su cumplimiento.", "Desarrolla a sus colaboradores y gestiona el desempeño del equipo.", "Define la dirección del área e inspira a otros líderes."],
-      comportamientos: ["Comunica objetivos claros", "Da retroalimentación oportuna", "Delega según capacidades"], historial: [HI(1, "08 sept 2026", "Luis Mena", "Creado"), HI(1, "10 sept 2026", "Luis Mena", "Aprobado")] },
-    { id: 2, codigo: "CMP-02", nombre: "Conocimiento de ISO 9001", tipo: "Técnica", estado: "Aprobado", version: 1, puestos: [4, 5, 6], aprobadoPor: "Marta Soto", aprobadoEl: "11 sept 2026",
-      descripcion: "Dominio de los requisitos de la norma ISO 9001 y su aplicación en los procesos de la empresa.",
-      niveles: ["Conoce la estructura general de la norma.", "Aplica los requisitos en los procesos de su área.", "Prepara y conduce auditorías internas.", "Diseña y mejora el sistema de gestión de calidad."],
-      comportamientos: ["Identifica requisitos aplicables", "Mantiene evidencia documental", "Propone acciones de mejora"], historial: [HI(1, "09 sept 2026", "Marta Soto", "Creado"), HI(1, "11 sept 2026", "Marta Soto", "Aprobado")] },
-    { id: 3, codigo: "CMP-03", nombre: "Atención al detalle", tipo: "Conductual", estado: "Aprobado", version: 1, puestos: [], aprobadoPor: "Marta Soto", aprobadoEl: "11 sept 2026",
-      descripcion: "Capacidad para realizar el trabajo con precisión y detectar errores o inconsistencias.",
-      niveles: ["Revisa su trabajo antes de entregarlo.", "Detecta errores en el trabajo propio y de otros.", "Establece controles para prevenir errores.", "Diseña mecanismos de verificación para el área."],
-      comportamientos: ["Verifica datos antes de registrarlos", "Sigue los procedimientos al pie de la letra"], historial: [HI(1, "09 sept 2026", "Marta Soto", "Creado"), HI(1, "11 sept 2026", "Marta Soto", "Aprobado")] },
-    { id: 4, codigo: "CMP-04", nombre: "Mejora continua", tipo: "Técnica", estado: "En revisión", version: 1, puestos: [7, 8],
-      descripcion: "Capacidad para identificar oportunidades y aplicar metodologías que mejoren los procesos.",
-      niveles: ["Reporta problemas que observa en su área.", "Participa en proyectos de mejora.", "Lidera proyectos de mejora con herramientas como PDCA o 5 porqués.", "Impulsa una cultura de mejora en toda la organización."],
-      comportamientos: ["Propone mejoras con datos", "Mide el resultado de los cambios"], historial: [HI(1, "01 oct 2026", "Ana Ruiz", "Creado"), HI(1, "02 oct 2026", "Ana Ruiz", "Enviado a revisión")] },
-    { id: 5, codigo: "CMP-05", nombre: "Negociación", tipo: "Conductual", estado: "Borrador", version: 1, puestos: [],
-      descripcion: "Capacidad para llegar a acuerdos que beneficien a las partes involucradas.", niveles: ["", "", "", ""], comportamientos: [], historial: [HI(1, "04 oct 2026", "Luis Mena", "Creado")] },
-  ],
-  politicas: [
-    { id: 1, codigo: "POL-CAL-01", titulo: "Política de calidad", categoria: "Calidad", dept: "Calidad", aplica: ["Dirección General", "Recursos Humanos", "Calidad", "Operaciones"], version: 1, estado: "Aprobado", aprobadoPor: "Ana Ruiz", aprobadoEl: "20 ago 2026",
-      objetivo: "Establecer el compromiso de la empresa con la satisfacción del cliente y la mejora continua.",
-      alcance: "Aplica a todas las áreas y a todo el personal de la empresa.",
-      lineamientos: ["Cumplir los requisitos del cliente y los aplicables a nuestros productos.", "Medir el desempeño de los procesos con indicadores.", "Atender y analizar toda queja de cliente.", "Capacitar al personal en sus funciones y en el sistema de gestión.", "Revisar esta política al menos una vez al año."],
-      responsabilidades: ["Dirección General: aprobar y difundir la política.", "Calidad: dar seguimiento a su cumplimiento.", "Todas las áreas: aplicarla en su trabajo diario."],
-      historial: [HI(1, "15 ago 2026", "Marta Soto", "Creado"), HI(1, "20 ago 2026", "Ana Ruiz", "Aprobado")] },
-    { id: 2, codigo: "POL-REC-01", titulo: "Política de capacitación", categoria: "Recursos Humanos", dept: "Recursos Humanos", aplica: ["Recursos Humanos", "Operaciones", "Calidad"], version: 1, estado: "En revisión",
-      objetivo: "Asegurar que el personal cuente con los conocimientos necesarios para su puesto.", alcance: "Aplica a todo el personal de planta y administrativo.",
-      lineamientos: ["Elaborar un plan anual de capacitación por área.", "Dar inducción a todo el personal de nuevo ingreso.", "Registrar la asistencia y evaluar cada curso.", "Revisar las necesidades de capacitación cada seis meses."],
-      responsabilidades: ["Recursos Humanos: elaborar y dar seguimiento al plan.", "Jefes de área: detectar necesidades de su equipo."],
-      historial: [HI(1, "25 sept 2026", "Luis Mena", "Creado"), HI(1, "29 sept 2026", "Luis Mena", "Enviado a revisión")] },
-    { id: 3, codigo: "POL-OPE-01", titulo: "Política de seguridad en planta", categoria: "Seguridad e higiene", dept: "Operaciones", aplica: ["Operaciones"], version: 1, estado: "Borrador",
-      objetivo: "Prevenir accidentes en las áreas de producción.", alcance: "Aplica al personal y visitantes en planta.",
-      lineamientos: ["Usar el equipo de protección personal en todo momento.", "Reportar cualquier condición insegura."], responsabilidades: ["Supervisor de Operaciones: verificar su cumplimiento."],
-      historial: [HI(1, "05 oct 2026", "Ana Ruiz", "Creado")] },
-  ],
-  kpis: [
-    { id: 1, codigo: "KPI-REC-01", nombre: "Rotación de personal", dept: "Recursos Humanos", responsable: 2, formula: "Bajas del periodo / plantilla promedio × 100", unidad: "%", meta: 3, sentido: "menor", frecuencia: "Mensual", valores: [4.1, 3.8, 3.5, 3.9, 3.2, 2.8], estado: "Aprobado", version: 1, aprobadoPor: "Luis Mena", aprobadoEl: "01 sept 2026", descripcion: "Mide qué porcentaje del personal deja la empresa cada mes.", historial: [HI(1, "01 sept 2026", "Luis Mena", "Aprobado")] },
-    { id: 2, codigo: "KPI-REC-02", nombre: "Cumplimiento del plan de capacitación", dept: "Recursos Humanos", responsable: 3, formula: "Cursos impartidos / cursos programados × 100", unidad: "%", meta: 90, sentido: "mayor", frecuencia: "Mensual", valores: [78, 82, 85, 88, 91, 86], estado: "Aprobado", version: 1, aprobadoPor: "Luis Mena", aprobadoEl: "01 sept 2026", descripcion: "Avance del plan anual de capacitación.", historial: [HI(1, "01 sept 2026", "Luis Mena", "Aprobado")] },
-    { id: 3, codigo: "KPI-CAL-01", nombre: "Producto no conforme", dept: "Calidad", responsable: 4, formula: "Piezas no conformes / piezas producidas × 100", unidad: "%", meta: 2, sentido: "menor", frecuencia: "Mensual", valores: [2.6, 2.4, 2.1, 1.9, 1.8, 1.6], estado: "Aprobado", version: 1, aprobadoPor: "Marta Soto", aprobadoEl: "02 sept 2026", descripcion: "Porcentaje de producción que no cumple especificaciones.", historial: [HI(1, "02 sept 2026", "Marta Soto", "Aprobado")] },
-    { id: 4, codigo: "KPI-CAL-02", nombre: "Auditorías internas realizadas", dept: "Calidad", responsable: 5, formula: "Auditorías realizadas / auditorías programadas × 100", unidad: "%", meta: 100, sentido: "mayor", frecuencia: "Trimestral", valores: [100, 75, 100], estado: "Aprobado", version: 1, aprobadoPor: "Marta Soto", aprobadoEl: "02 sept 2026", descripcion: "Cumplimiento del programa de auditorías internas.", historial: [HI(1, "02 sept 2026", "Marta Soto", "Aprobado")] },
-    { id: 5, codigo: "KPI-OPE-01", nombre: "Eficiencia general de la línea (OEE)", dept: "Operaciones", responsable: 7, formula: "Disponibilidad × rendimiento × calidad", unidad: "%", meta: 80, sentido: "mayor", frecuencia: "Mensual", valores: [72, 74, 71, 76, 78, 77], estado: "En revisión", version: 1, descripcion: "Aprovechamiento real de la línea de producción.", historial: [HI(1, "30 sept 2026", "Ana Ruiz", "Enviado a revisión")] },
-  ],
-};
 
 /* ---------- KPIs: cálculo ---------- */
 const kpiLast = k => (arr(k.valores).length ? +k.valores[k.valores.length - 1] : null);
@@ -212,10 +140,15 @@ const MODS = {
 const compPuestos = it => puestos.filter(p => arr(it.puestos).includes(p.id) || arr(p.comp).some(c => c.toLowerCase() === String(it.nombre).toLowerCase()));
 
 /* ---------- datos y guardado ---------- */
-const clone = o => JSON.parse(JSON.stringify(o));
 const data = {};
-for (const k in MODS) data[k] = store.get("do_v3_" + k, null) || clone(SEED[k]);
-const saveMod = k => store.set("do_v3_" + k, data[k]);
+for (const k in MODS) data[k] = [];
+// Recibe la respuesta de /api/data (o de un restablecimiento) y refresca la vista actual
+function setModData(d) {
+  for (const k in MODS) data[k] = Array.isArray(d?.[k]) ? d[k] : [];
+  for (const k in MODS) if ($(k).classList.contains("active")) renderMod(k);
+  updateStats();
+}
+const replaceIt = (k, item) => { data[k] = data[k].some(x => x.id === item.id) ? data[k].map(x => (x.id === item.id ? item : x)) : [...data[k], item]; };
 const findIt = (k, id) => data[k].find(x => x.id === id);
 const filtros = {};
 
@@ -227,7 +160,7 @@ for (const k in MODS) {
   $(k).innerHTML = `<div class="sh"><h3>${esc(m.title)}</h3>
       <div class="toolbar"><input class="input" placeholder="Buscar..." style="width:200px" oninput="filtros.${k}.q=this.value;renderMod('${k}')">
         <select class="select" style="width:150px" onchange="filtros.${k}.estado=this.value;renderMod('${k}')"><option value="">Todos los estados</option>${ESTADOS.map(s => `<option>${s}</option>`).join("")}</select>
-        <button class="btn" onclick="resetMod('${k}')">Restablecer</button><button class="btn primary" onclick="openForm('${k}')">${esc(m.nuevo)}</button></div></div>
+        <button class="btn" data-perm="admin" onclick="resetOrg()">Restablecer</button><button class="btn primary" data-perm="editar:${k}" onclick="openForm('${k}')">${esc(m.nuevo)}</button></div></div>
     <p class="intro">${esc(m.intro)}</p>
     <div class="chips-row" id="${k}Counts"></div>
     <div class="card"><div class="tw"><table><thead><tr>${m.cols.map(c => `<th>${c[0]}</th>`).join("")}<th>Estado</th><th>Acciones</th></tr></thead><tbody id="${k}Body"></tbody></table></div></div>`;
@@ -241,41 +174,40 @@ function renderMod(k) {
   $(k + "Counts").innerHTML = ESTADOS.map(s => `<span class="tag ${tagCls(s)}">${s}: ${data[k].filter(x => x.estado === s).length}</span>`).join("");
 }
 
-function resetMod(k) {
-  if (!confirm(`Se restaurarán los datos de ejemplo de ${MODS[k].title}. ¿Continuar?`)) return;
-  data[k] = clone(SEED[k]); saveMod(k); renderMod(k); updateStats(); toast("Datos de ejemplo restaurados.");
-}
-
 /* ---------- detalle, flujo de aprobación y versiones ---------- */
 function showItem(k, id) {
   const m = MODS[k], it = findIt(k, id);
   if (!it) return;
-  const next = { Borrador: ["enviar", "Enviar a revisión"], "En revisión": ["aprobar", "Aprobar"] }[it.estado];
+  const ed = can("editar", k);
+  const next = ({ Borrador: ed && ["enviar", "Enviar a revisión"], "En revisión": can("aprobar", k) && ["aprobar", "Aprobar"] })[it.estado];
   $("mdTitle").textContent = m.name(it);
   $("mdBody").innerHTML = `<div class="toolbar" style="margin-bottom:12px"><span class="tag">${esc(it.codigo)}</span><span class="tag">Versión ${it.version}</span><span class="tag ${tagCls(it.estado)}">${esc(it.estado)}</span></div>
     <div class="details">${m.detail(it)}
       <div class="d"><b>Aprobación</b>${it.estado === "Aprobado" && it.aprobadoPor ? `Aprobado por ${esc(it.aprobadoPor)} el ${esc(it.aprobadoEl)}. <span class="note">Registro simulado; no equivale a una firma electrónica.</span>` : "Pendiente de aprobación."}</div>
       <div class="d"><b>Historial de versiones</b><ul class="ul hist">${arr(it.historial).slice().reverse().map(h => `<li><b>v${h.v}</b> · ${esc(h.fecha)} · ${esc(h.autor)} — ${esc(h.nota)}</li>`).join("")}</ul></div></div>
     <div class="toolbar" style="margin-top:14px;justify-content:flex-end">
-      <button class="btn danger" onclick="delItem('${k}',${id})">Eliminar</button>
-      ${it.estado === "En revisión" ? `<button class="btn" onclick="cambiarEstado('${k}',${id},'regresar')">Regresar a borrador</button>` : ""}
-      <button class="btn" onclick="openForm('${k}',${id})">${it.estado === "Aprobado" ? "Crear nueva versión" : "Editar"}</button>
-      ${next ? `<button class="btn primary" onclick="cambiarEstado('${k}',${id},'${next[0]}')">${next[1]}</button>` : ""}</div>`;
+      ${ed ? `<button class="btn danger" onclick="delItem('${k}',${id})">Eliminar</button>` : ""}
+      ${ed && it.estado === "En revisión" ? `<button class="btn" onclick="cambiarEstado('${k}',${id},'regresar')">Regresar a borrador</button>` : ""}
+      ${ed ? `<button class="btn" onclick="openForm('${k}',${id})">${it.estado === "Aprobado" ? "Crear nueva versión" : "Editar"}</button>` : ""}
+      ${next ? `<button class="btn primary" onclick="cambiarEstado('${k}',${id},'${next[0]}')">${next[1]}</button>` : ""}
+      ${!ed && !next ? '<span class="note">Tu rol solo puede consultar este registro.</span>' : ""}</div>`;
   openModal("modDetail");
 }
 
-function cambiarEstado(k, id, accion) {
-  const it = findIt(k, id);
-  if (accion === "enviar") { it.estado = "En revisión"; it.historial.push(hist(it.version, "Enviado a revisión")); }
-  if (accion === "regresar") { it.estado = "Borrador"; it.historial.push(hist(it.version, "Regresado a borrador")); }
-  if (accion === "aprobar") { it.estado = "Aprobado"; it.aprobadoPor = usuario(); it.aprobadoEl = hoy(); it.historial.push(hist(it.version, "Aprobado")); }
-  saveMod(k); renderMod(k); updateStats(); showItem(k, id);
-  toast({ enviar: "Enviado a revisión.", regresar: "Regresado a borrador.", aprobar: "Aprobado tras revisión humana." }[accion]);
+async function cambiarEstado(k, id, accion) {
+  try {
+    const d = await api("/api/items", { mod: k, op: "estado", id, accion });
+    replaceIt(k, d.item); renderMod(k); updateStats(); showItem(k, id);
+    toast({ enviar: "Enviado a revisión.", regresar: "Regresado a borrador.", aprobar: "Aprobado tras revisión humana." }[accion]);
+  } catch (e) { toast(e.message); }
 }
 
-function delItem(k, id) {
+async function delItem(k, id) {
   if (!confirm(`¿Eliminar este registro de ${MODS[k].title}?`)) return;
-  data[k] = data[k].filter(x => x.id !== id); saveMod(k); closeModal("modDetail"); renderMod(k); updateStats(); toast("Registro eliminado.");
+  try {
+    await api("/api/items", { mod: k, op: "delete", id });
+    data[k] = data[k].filter(x => x.id !== id); closeModal("modDetail"); renderMod(k); updateStats(); toast("Registro eliminado.");
+  } catch (e) { toast(e.message); }
 }
 
 /* ---------- formulario de alta / edición con IA ---------- */
@@ -373,37 +305,31 @@ function fillFromAi(vals) {
 }
 function useSug(i) { fillFromAi(MODS.kpis.ai.apply(formCtx.sugerencias[i])); $("mfAiMsg").textContent = "Propuesta aplicada. Revísala y agrega mediciones si las tienes."; }
 
-function saveForm() {
+async function saveForm() {
   const { k, id, ia } = formCtx, m = MODS[k], vals = {};
   for (const f of m.fields) {
     vals[f.k] = getField(f);
     const empty = Array.isArray(vals[f.k]) ? !vals[f.k].length : vals[f.k] === "";
     if (f.req && empty) { toast(`Completa el campo "${f.l.replace(/\s*\(.*\)$/, "")}".`); $(fid(f.k))?.focus(); return; }
   }
-  const nota = ia ? " con apoyo de IA" : "";
-  if (id) {
-    const it = findIt(k, id);
-    if (it.estado === "Aprobado") {
-      Object.assign(it, vals, { version: it.version + 1, estado: "En revisión", aprobadoPor: "", aprobadoEl: "" });
-      it.historial.push(hist(it.version, "Nueva versión" + nota));
-    } else {
-      Object.assign(it, vals);
-      it.historial.push(hist(it.version, "Editado" + nota));
-    }
-  } else {
-    const dep = vals.dept || "GEN", n = data[k].filter(x => x.codigo.startsWith(`${m.pre}-${m.noDept ? "" : abbr(dep) + "-"}`)).length + 1;
-    const codigo = m.noDept ? `${m.pre}-${String(data[k].length + 1).padStart(2, "0")}` : `${m.pre}-${abbr(dep)}-${String(n).padStart(2, "0")}`;
-    data[k].push({ id: Date.now(), codigo, version: 1, estado: "Borrador", historial: [hist(1, "Creado" + nota)], ...vals });
+  const btn = $("mfSave");
+  btn.disabled = true; btn.textContent = "Guardando...";
+  try {
+    const d = await api("/api/items", { mod: k, op: id ? "update" : "create", id, datos: vals, ia });
+    replaceIt(k, d.item); closeModal("modForm"); renderMod(k); updateStats();
+    toast(id ? (d.item.estado === "En revisión" && d.item.historial.at(-1)?.nota.startsWith("Nueva versión") ? `Se creó la versión ${d.item.version} en revisión.` : "Cambios guardados.") : `Registro ${d.item.codigo} guardado como borrador.`);
+  } catch (e) {
+    toast(e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = "Guardar";
   }
-  saveMod(k); closeModal("modForm"); renderMod(k); updateStats();
-  toast(id ? "Cambios guardados." : "Registro guardado como borrador.");
 }
 
 /* ---------- modales ---------- */
 document.body.insertAdjacentHTML("beforeend", `
 <div class="modal" id="modDetail"><div class="mc mc-wide"><div class="mh"><h3 id="mdTitle"></h3><button class="close" onclick="closeModal('modDetail')" aria-label="Cerrar">×</button></div><div id="mdBody"></div></div></div>
 <div class="modal" id="modForm"><div class="mc mc-wide"><div class="mh"><h3 id="mfTitle"></h3><button class="close" onclick="closeModal('modForm')" aria-label="Cerrar">×</button></div><div id="mfBody"></div>
-  <div class="toolbar" style="margin-top:16px;justify-content:flex-end"><button class="btn" onclick="closeModal('modForm')">Cancelar</button><button class="btn primary" onclick="saveForm()">Guardar</button></div></div></div>`);
+  <div class="toolbar" style="margin-top:16px;justify-content:flex-end"><button class="btn" onclick="closeModal('modForm')">Cancelar</button><button class="btn primary" id="mfSave" onclick="saveForm()">Guardar</button></div></div></div>`);
 
 /* ---------- integración con navegación, dashboard y chat ---------- */
 go = (orig => page => { orig(page); if (MODS[page]) renderMod(page); })(go);
@@ -437,3 +363,4 @@ function modSummary() {
 }
 
 updateStats();
+applyPerms();

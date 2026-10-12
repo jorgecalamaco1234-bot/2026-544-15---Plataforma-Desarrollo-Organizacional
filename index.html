@@ -97,6 +97,8 @@ th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font
 .msg.err{align-self:flex-start;background:rgba(255,102,27,.14);color:var(--ink)}
 .err:not(:empty)::before,.msg.err::before,.err-box::before{content:"⚠ ";color:var(--orange)}
 .err-box{color:var(--ink)}
+[data-perm].no-perm{display:none!important}
+.perm-note{font-size:12px;color:var(--muted);margin:0 0 12px}
 .chat-form{display:flex;gap:10px}.chat-form .input{flex:1}
 .chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
 /* módulos */
@@ -166,7 +168,7 @@ table.mini{margin-top:6px;border:1px solid var(--line);border-radius:8px}table.m
         <button class="btn primary" style="width:100%;margin-top:6px" id="lBtn">Entrar</button>
         <p style="text-align:center;margin:14px 0 0"><a href="#" id="forgot" style="font-size:13px;color:var(--blue)">¿Olvidaste tu contraseña?</a></p>
       </form>
-      <div class="demo"><p>Prototipo sin base de datos. Usa una cuenta de prueba (contraseña: demo2026):</p><div id="demoBtns"></div></div>
+      <div class="demo"><p>Cuentas de prueba (contraseña: demo2026). Cada rol tiene permisos distintos:</p><div id="demoBtns"></div></div>
     </div>
   </div>
 </div>
@@ -226,7 +228,7 @@ table.mini{margin-top:6px;border:1px solid var(--line);border-radius:8px}table.m
 
     <section id="organigrama" class="page">
       <div class="sh"><h3>Organigrama de Empresa Demo</h3>
-        <div class="toolbar"><button class="btn" onclick="collapseAll(true)">Contraer todo</button><button class="btn" onclick="collapseAll(false)">Expandir todo</button><button class="btn" onclick="resetOrg()">Restablecer</button><button class="btn primary" onclick="openOrgModal()">+ Agregar puesto</button></div></div>
+        <div class="toolbar"><button class="btn" onclick="collapseAll(true)">Contraer todo</button><button class="btn" onclick="collapseAll(false)">Expandir todo</button><button class="btn" data-perm="admin" onclick="resetOrg()">Restablecer</button><button class="btn primary" data-perm="editar:puestos" onclick="openOrgModal()">+ Agregar puesto</button></div></div>
       <div class="legend" id="legend"></div>
       <div class="orgwrap"><div class="lv" id="lv"></div><div class="scroll"><div class="canvas" id="canvas"></div></div></div>
       <p style="font-size:12px;color:var(--muted)">Haz clic en un puesto para ver su descripción o agregarle un subordinado. El botón numerado muestra u oculta a su equipo.</p>
@@ -234,7 +236,7 @@ table.mini{margin-top:6px;border:1px solid var(--line);border-radius:8px}table.m
 
     <section id="puestos" class="page">
       <div class="sh"><h3>Descripciones de puesto</h3>
-        <div class="toolbar"><input class="input" id="searchPuesto" placeholder="Buscar puesto..." style="width:220px" oninput="renderPuestos()"><button class="btn primary" onclick="openPuestoModal()">+ Nuevo puesto</button></div></div>
+        <div class="toolbar"><input class="input" id="searchPuesto" placeholder="Buscar puesto..." style="width:220px" oninput="renderPuestos()"><button class="btn primary" data-perm="editar:puestos" onclick="openPuestoModal()">+ Nuevo puesto</button></div></div>
       <div class="card"><div class="tw"><table><thead><tr><th>Puesto</th><th>Departamento</th><th>Reporta a</th><th>Responsabilidades</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="puestosBody"></tbody></table></div></div>
     </section>
 
@@ -248,7 +250,8 @@ table.mini{margin-top:6px;border:1px solid var(--line);border-radius:8px}table.m
             <div class="field s2"><label>Reporta a</label><select class="select" id="aiParent"></select></div>
             <div class="field s2"><label>Responsabilidades clave</label><textarea class="textarea" id="aiResp">Dar seguimiento a indicadores de calidad; coordinar documentación; apoyar auditorías internas.</textarea></div>
           </div>
-          <div class="toolbar" style="margin-top:14px"><button class="btn primary" id="aiGenBtn" onclick="generateAI()">✦ Generar borrador</button><button class="btn" onclick="clearAI()">Limpiar</button></div>
+          <div class="toolbar" style="margin-top:14px"><button class="btn primary" id="aiGenBtn" data-perm="editar:puestos" onclick="generateAI()">✦ Generar borrador</button><button class="btn" onclick="clearAI()">Limpiar</button></div>
+          <p class="perm-note" data-perm-not="editar:puestos" style="margin-top:13px">Tu rol puede consultar puestos, pero solo Administrador y Recursos Humanos crean descripciones con la IA.</p>
           <p style="font-size:11px;color:var(--muted);margin-top:13px">El borrador lo redacta la IA. Revísalo y edítalo: nada se publica sin revisión humana.</p></div>
         <div class="card" id="aiResult"></div>
       </div>
@@ -291,47 +294,50 @@ table.mini{margin-top:6px;border:1px solid var(--line);border-radius:8px}table.m
 const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
-const USERS=[{e:"admin@empresademo.mx",n:"Ana Ruiz",r:"Administrador"},{e:"rh@empresademo.mx",n:"Luis Mena",r:"Recursos Humanos"},{e:"calidad@empresademo.mx",n:"Marta Soto",r:"Calidad"}];
+// Cuentas de prueba (solo para llenar el formulario; la validación la hace el servidor)
+const USERS=[{e:"admin@empresademo.mx",r:"Administrador"},{e:"rh@empresademo.mx",r:"Recursos Humanos"},{e:"calidad@empresademo.mx",r:"Calidad"},{e:"direccion@empresademo.mx",r:"Dirección"}];
 const PASS="demo2026";
-const seed=[
-{id:1,parent:null,name:"Director General",dept:"Dirección General",resp:"Definir estrategia; tomar decisiones ejecutivas; supervisar resultados.",obj:"Dirigir la operación general de la empresa y asegurar el cumplimiento de los objetivos organizacionales.",comp:["Liderazgo","Visión estratégica","Toma de decisiones"],perfil:"Licenciatura en Administración o afín; 8 años de experiencia directiva.",status:"Completa"},
-{id:2,parent:1,name:"Gerente de Recursos Humanos",dept:"Recursos Humanos",resp:"Gestionar talento; coordinar capacitación; actualizar información de puestos.",obj:"Administrar el organigrama y las descripciones de puesto, y coordinar el desarrollo del personal.",comp:["Empatía","Negociación","Manejo de conflictos"],perfil:"Licenciatura en Psicología o Administración; 5 años en RH.",status:"Completa"},
-{id:3,parent:2,name:"Especialista de RH",dept:"Recursos Humanos",resp:"Apoyar reclutamiento; mantener expedientes; coordinar inducción.",obj:"",comp:[],perfil:"",status:"Pendiente"},
-{id:4,parent:1,name:"Gerente de Calidad",dept:"Calidad",resp:"Coordinar el sistema de calidad; dar seguimiento a indicadores; preparar auditorías.",obj:"Mantener el sistema de gestión de calidad alineado a ISO 9001 y coordinar las auditorías internas y externas.",comp:["Pensamiento analítico","Conocimiento de ISO 9001","Comunicación"],perfil:"Ingeniería Industrial o afín; 5 años en sistemas de calidad.",status:"Completa"},
-{id:5,parent:4,name:"Coordinador de Calidad",dept:"Calidad",resp:"Dar seguimiento a indicadores; coordinar documentación; apoyar auditorías internas.",obj:"Coordinar el control documental y dar seguimiento a los indicadores de calidad del área.",comp:["Organización","Redacción de informes","Atención al detalle"],perfil:"Ingeniería o TSU; curso de auditor interno ISO 9001.",status:"Completa"},
-{id:6,parent:5,name:"Analista de Calidad",dept:"Calidad",resp:"Capturar registros; revisar evidencias; apoyar análisis de incidencias.",obj:"Registrar y analizar la evidencia documental que sostiene el sistema de gestión de calidad.",comp:["Atención al detalle","Manejo de Excel","Trabajo en equipo"],perfil:"TSU o licenciatura en área afín; 1 a 2 años de experiencia.",status:"Completa"},
-{id:7,parent:1,name:"Gerente de Operaciones",dept:"Operaciones",resp:"Supervisar operación; coordinar recursos; monitorear productividad.",obj:"Planear y controlar la operación diaria, asegurando el cumplimiento de metas de calidad y entrega.",comp:["Planeación","Liderazgo operativo","Mejora continua"],perfil:"Ingeniería Industrial o Mecánica; 6 años en manufactura.",status:"Completa"},
-{id:8,parent:7,name:"Supervisor de Operaciones",dept:"Operaciones",resp:"Coordinar personal; vigilar procesos; reportar incidencias.",obj:"",comp:[],perfil:"",status:"Pendiente"},
-{id:9,parent:8,name:"Líder de Producción",dept:"Operaciones",resp:"Asignar tareas en línea; verificar cumplimiento del plan; reportar paros.",obj:"",comp:[],perfil:"",status:"Pendiente"}];
-let puestos=store.get("do_v2_puestos",null)||seed;
+// Los datos de ejemplo viven en el servidor (lib/seed.js) y se leen de la base de datos.
+let puestos=[];
+let usuario=null;
 let collapsed=new Set(store.get("do_v2_collapsed",[]));
 let focusDept=null;
-const save=()=>{store.set("do_v2_puestos",puestos);store.set("do_v2_collapsed",[...collapsed])};
+const save=()=>store.set("do_v2_collapsed",[...collapsed]); // solo preferencias de vista; los datos se guardan en el servidor
 const byId=id=>puestos.find(p=>p.id===id);
 const cls=s=>s==="Completa"?"":"warn";
 function toast(m){const t=$("toast");t.textContent=m;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),2300)}
 
 /* login */
 const initials=n=>n.split(" ").map(w=>w[0]).join("").slice(0,2);
-function startSession(u){
+const can=(acc,mod)=>acc==="admin"?!!usuario?.permisos?.admin:!!usuario?.permisos?.[acc]?.includes(mod);
+function applyPerms(){
+  document.querySelectorAll("[data-perm]").forEach(el=>{const[acc,mod]=el.dataset.perm.split(":");el.classList.toggle("no-perm",!can(acc,mod))});
+  document.querySelectorAll("[data-perm-not]").forEach(el=>{const[acc,mod]=el.dataset.permNot.split(":");el.hidden=can(acc,mod)});
+}
+async function cargarDatos(){const d=await api("/api/data",null,"GET");puestos=d.puestos;if(typeof setModData==="function")setModData(d)}
+async function startSession(u){
+  usuario=u;
   $("login").hidden=true;$("app").hidden=false;
   $("uAv").textContent=initials(u.n);$("uName").textContent=u.n;$("uRole").textContent=u.r;
+  applyPerms();
+  try{await cargarDatos()}catch(e){toast(e.message)}
   go("dashboard");
 }
+function endSession(msg){usuario=null;puestos=[];if(typeof setModData==="function")setModData({});document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open"));$("app").hidden=true;$("login").hidden=false;$("lPass").value="";$("lErr").textContent=msg||""}
 $("demoBtns").innerHTML=USERS.map((u,i)=>`<button type="button" class="btn small" data-u="${i}">${u.r}</button>`).join("");
 $("demoBtns").onclick=e=>{const b=e.target.closest("[data-u]");if(!b)return;$("lEmail").value=USERS[b.dataset.u].e;$("lPass").value=PASS;$("lErr").textContent=""};
 $("pwBtn").onclick=()=>{const p=$("lPass"),s=p.type==="password";p.type=s?"text":"password";$("pwBtn").textContent=s?"Ocultar":"Mostrar"};
 $("forgot").onclick=e=>{e.preventDefault();alert("En el prototipo no hay recuperación de contraseña.")};
-$("loginForm").onsubmit=e=>{
+$("loginForm").onsubmit=async e=>{
   e.preventDefault();
-  const em=$("lEmail").value.trim().toLowerCase(),pw=$("lPass").value;
-  if(!em||!pw){$("lErr").textContent="Escribe tu correo y tu contraseña.";return}
-  const u=USERS.find(x=>x.e===em);
-  if(!u||pw!==PASS){$("lErr").textContent="Correo o contraseña incorrectos. Prueba con una cuenta de prueba.";return}
-  $("lErr").textContent="";$("lBtn").textContent="Validando...";
-  setTimeout(()=>{$("lBtn").textContent="Entrar";try{sessionStorage.setItem("do_v2_user",JSON.stringify(u))}catch{}startSession(u)},500);
+  const email=$("lEmail").value.trim().toLowerCase(),password=$("lPass").value;
+  if(!email||!password){$("lErr").textContent="Escribe tu correo y tu contraseña.";return}
+  $("lErr").textContent="";$("lBtn").textContent="Validando...";$("lBtn").disabled=true;
+  try{const d=await api("/api/auth",{action:"login",email,password});await startSession(d.user)}
+  catch(err){$("lErr").textContent=err.message}
+  finally{$("lBtn").textContent="Entrar";$("lBtn").disabled=false}
 };
-$("logout").onclick=()=>{try{sessionStorage.removeItem("do_v2_user")}catch{}$("app").hidden=true;$("login").hidden=false;$("lPass").value=""};
+$("logout").onclick=async()=>{try{await api("/api/auth",{action:"logout"})}catch{}endSession()};
 
 /* navegación */
 const titles={dashboard:"Dashboard",organigrama:"Organigramas",puestos:"Descripciones de puesto",ia:"Asistente IA"};
@@ -387,7 +393,8 @@ $("canvas").onclick=e=>{
 $("canvas").onkeydown=e=>{if(e.key==="Enter"){const n=e.target.closest(".node");if(n)showPuesto(+n.dataset.id)}};
 $("legend").onclick=e=>{const c=e.target.closest("[data-d]");if(!c)return;focusDept=focusDept===c.dataset.d?null:c.dataset.d;renderOrg()};
 function collapseAll(v){collapsed=new Set(v?puestos.filter(p=>puestos.some(q=>q.parent===p.id)&&p.parent!=null).map(p=>p.id):[]);save();renderOrg()}
-function resetOrg(){if(!confirm("Se restaurarán los datos de ejemplo. ¿Continuar?"))return;puestos=JSON.parse(JSON.stringify(seed));collapsed=new Set();focusDept=null;save();renderOrg();renderPuestos();toast("Datos de ejemplo restaurados.")}
+async function resetOrg(){if(!confirm("Se restaurarán todos los datos de ejemplo (puestos, procesos, competencias, políticas y KPIs) para todos los usuarios. ¿Continuar?"))return;
+  try{const d=await api("/api/items",{op:"reset"});puestos=d.puestos;if(typeof setModData==="function")setModData(d);collapsed=new Set();focusDept=null;save();renderOrg();renderPuestos();updateStats();toast("Datos de ejemplo restaurados.")}catch(e){toast(e.message)}}
 
 /* selects de "Reporta a" */
 function parentOpts(sel){return puestos.map(p=>`<option value="${p.id}"${p.id===sel?" selected":""}>${esc(p.name)} (${esc(p.dept)})</option>`).join("")}
@@ -409,27 +416,29 @@ function showPuesto(id){
     <div class="d"><b>Equipo a cargo</b>${team.length?team.map(t=>esc(t.name)).join(", "):"Sin subordinados directos."}</div>
     <div class="d"><b>Estado</b><span class="tag ${cls(p.status)}">${esc(p.status)}</span></div></div>
     <div class="toolbar" style="margin-top:14px;justify-content:flex-end">
-      ${p.parent!=null&&!team.length?`<button class="btn danger" onclick="delPuesto(${id})">Eliminar puesto</button>`:""}
-      ${p.status!=="Completa"?`<button class="btn success" onclick="aprobar(${id})">Aprobar descripción</button>`:""}
-      <button class="btn primary" onclick="closeModal('detailModal');openOrgModal(${id})">+ Agregar subordinado</button></div>`;
+      ${p.parent!=null&&!team.length&&can("editar","puestos")?`<button class="btn danger" onclick="delPuesto(${id})">Eliminar puesto</button>`:""}
+      ${p.status!=="Completa"&&can("aprobar","puestos")?`<button class="btn success" onclick="aprobar(${id})">Aprobar descripción</button>`:""}
+      ${can("editar","puestos")?`<button class="btn primary" onclick="closeModal('detailModal');openOrgModal(${id})">+ Agregar subordinado</button>`:""}</div>`;
   openModal("detailModal");
 }
-function aprobar(id){byId(id).status="Completa";save();renderPuestos();renderOrg();showPuesto(id);toast("Descripción aprobada tras revisión humana.")}
-function delPuesto(id){if(!confirm("¿Eliminar este puesto?"))return;puestos=puestos.filter(p=>p.id!==id);save();closeModal("detailModal");renderOrg();renderPuestos();toast("Puesto eliminado.")}
+const replacePuesto=p=>{puestos=puestos.map(x=>x.id===p.id?p:x)};
+async function aprobar(id){try{const d=await api("/api/items",{mod:"puestos",op:"estado",id,accion:"aprobar"});replacePuesto(d.item);renderPuestos();renderOrg();showPuesto(id);toast("Descripción aprobada tras revisión humana.")}catch(e){toast(e.message)}}
+async function delPuesto(id){if(!confirm("¿Eliminar este puesto?"))return;try{await api("/api/items",{mod:"puestos",op:"delete",id});puestos=puestos.filter(p=>p.id!==id);closeModal("detailModal");renderOrg();renderPuestos();toast("Puesto eliminado.")}catch(e){toast(e.message)}}
 
 /* alta de puestos */
-function newPuesto(o){puestos.push({id:Date.now(),obj:"",comp:[],perfil:"",status:"Pendiente",...o});save()}
-function addOrg(){
+// Crea el puesto en el servidor; devuelve el puesto guardado o null si hubo error (ya se avisó con un toast)
+async function newPuesto(o){try{const d=await api("/api/items",{mod:"puestos",op:"create",datos:o});puestos.push(d.item);if(d.aviso)toast(d.aviso);return d.item}catch(e){toast(e.message);return null}}
+async function addOrg(){
   const name=$("orgPosition").value.trim(),dept=$("orgDepartment").value.trim();
   if(!name||!dept){toast("Completa puesto y departamento.");return}
-  const parent=+$("orgReports").value;newPuesto({name,dept,parent,resp:"Pendiente de definir. Genera el borrador en el Asistente IA."});
+  const parent=+$("orgReports").value;if(!await newPuesto({name,dept,parent,resp:"Pendiente de definir. Genera el borrador en el Asistente IA."}))return;
   collapsed.delete(parent);save();closeModal("orgModal");renderOrg();renderPuestos();toast("Puesto agregado debajo de "+byId(parent).name+".");
   $("orgPosition").value="";$("orgDepartment").value="";
 }
-function addPuesto(){
+async function addPuesto(){
   const name=$("newName").value.trim(),dept=$("newDept").value.trim(),resp=$("newResp").value.trim();
   if(!name||!dept||!resp){toast("Completa los campos del puesto.");return}
-  newPuesto({name,dept,resp,parent:+$("newParent").value});closeModal("puestoModal");renderPuestos();toast("Puesto guardado.");
+  if(!await newPuesto({name,dept,resp,parent:+$("newParent").value}))return;closeModal("puestoModal");renderPuestos();toast("Puesto guardado.");
   ["newName","newDept","newResp"].forEach(i=>$(i).value="");
 }
 function renderPuestos(){
@@ -441,12 +450,14 @@ function renderPuestos(){
 
 /* asistente IA (Gemini vía /api) */
 const EMPTY='<div class="empty">Completa los datos y pulsa <b>Generar borrador</b>.</div>';
-async function api(path,body){
+async function api(path,body,method="POST"){
   let r;
-  try{r=await fetch(path,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)})}
+  try{r=await fetch(path,{method,credentials:"same-origin",headers:{"Content-Type":"application/json","X-Requested-With":"fetch"},body:method==="GET"?undefined:JSON.stringify(body)})}
   catch{throw new Error("Sin conexión con el servidor.")}
   const d=await r.json().catch(()=>({}));
-  if(!r.ok)throw new Error(d.error||(r.status===404?"El servicio de IA no está disponible en este sitio.":"Error "+r.status+"."));
+  // Sesión vencida en cualquier operación: volver al inicio de sesión
+  if(r.status===401&&usuario&&path!=="/api/auth"){endSession(d.error);throw new Error(d.error)}
+  if(!r.ok)throw new Error(d.error||(r.status===404?"El servicio no está disponible en este sitio.":"Error "+r.status+"."));
   return d;
 }
 async function generateAI(){
@@ -467,13 +478,14 @@ async function generateAI(){
     ${f("Competencias sugeridas (separadas por coma)",`<input class="input" id="dComp" value="${esc(list(d.competencias).join(", "))}">`)}
     ${f("Perfil académico",`<textarea class="textarea" id="dPerfil" style="min-height:60px">${esc(d.perfil)}</textarea>`)}
     <p style="font-size:11px;color:var(--muted);margin:10px 0 0">Generado con IA. Nunca se publica sin revisión humana.</p>
-    <div class="toolbar" style="margin-top:14px"><button class="btn success" onclick="saveAI('Pendiente')">Guardar para revisión</button><button class="btn primary" onclick="saveAI('Completa')">Revisar y aprobar</button><button class="btn" onclick="copyAI()">Copiar borrador</button></div>`;
+    <div class="toolbar" style="margin-top:14px"><button class="btn success" onclick="saveAI('Pendiente')">Guardar para revisión</button>${can("aprobar","puestos")?`<button class="btn primary" onclick="saveAI('Completa')">Revisar y aprobar</button>`:""}<button class="btn" onclick="copyAI()">Copiar borrador</button></div>`;
 }
-function saveAI(status){
+async function saveAI(status){
   const resp=$("dResp").value.split("\n").map(s=>s.trim()).filter(Boolean).join("; ");
   if(!resp){toast("Escribe al menos una responsabilidad antes de guardar.");return}
-  newPuesto({name:$("dTitle").value.trim()||"Nuevo puesto",dept:$("aiDept").value.trim()||"Área general",parent:+$("aiParent").value,resp,obj:$("dObj").value.trim(),comp:$("dComp").value.split(",").map(s=>s.trim()).filter(Boolean),perfil:$("dPerfil").value.trim(),status});
-  updateStats();toast(status==="Completa"?"Puesto guardado y aprobado.":"Borrador guardado para revisión.");$("aiResult").innerHTML=EMPTY;
+  const p=await newPuesto({name:$("dTitle").value.trim()||"Nuevo puesto",dept:$("aiDept").value.trim()||"Área general",parent:+$("aiParent").value,resp,obj:$("dObj").value.trim(),comp:$("dComp").value.split(",").map(s=>s.trim()).filter(Boolean),perfil:$("dPerfil").value.trim(),status});
+  if(!p)return;
+  updateStats();toast(p.status==="Completa"?"Puesto guardado y aprobado.":"Borrador guardado para revisión.");$("aiResult").innerHTML=EMPTY;
 }
 function copyAI(){
   const g=i=>$(i)?.value||"";
@@ -506,11 +518,12 @@ function updateStats(){
   $("statDept").textContent=depts().length;$("statPuestos").textContent=puestos.length;
   $("statComplete").textContent=puestos.filter(p=>p.status==="Completa").length;
   const depth=p=>{let d=1,x=p;while(byId(x.parent)&&d<50){x=byId(x.parent);d++}return d};
-  $("statLv").textContent=Math.max(...puestos.map(depth));
+  $("statLv").textContent=puestos.length?Math.max(...puestos.map(depth)):0;
 }
 $("aiResult").innerHTML=EMPTY;fillParents();
 document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open"))});
-try{const u=JSON.parse(sessionStorage.getItem("do_v2_user"));if(u)startSession(u)}catch{}
+// Si ya hay sesión (cookie), entrar directo
+api("/api/auth",null,"GET").then(d=>startSession(d.user)).catch(()=>{});
 </script>
 <script src="modulos.js"></script>
 </body>

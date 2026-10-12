@@ -1,9 +1,13 @@
 import { gemini, clip, readBody, fail, orgContext } from "../lib/gemini.js";
+import { requireUser } from "../lib/auth.js";
+import { requireSameOrigin } from "../lib/http.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido." });
   const trace = [];
   try {
+    requireSameOrigin(req);
+    await requireUser(req);
     const { messages, puestos, modulos } = readBody(req);
     const contents = (Array.isArray(messages) ? messages : [])
       .filter(m => (m.role === "user" || m.role === "assistant") && String(m.content ?? "").trim())

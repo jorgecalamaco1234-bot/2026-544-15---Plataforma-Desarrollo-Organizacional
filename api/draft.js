@@ -1,4 +1,6 @@
 import { gemini, clip, readBody, fail, HttpError } from "../lib/gemini.js";
+import { requireUser } from "../lib/auth.js";
+import { requireSameOrigin } from "../lib/http.js";
 
 // Borradores con IA para los módulos de Procesos, Competencias, Políticas y KPIs.
 // Cada tipo define su esquema de salida (JSON) y cómo armar la petición.
@@ -108,6 +110,8 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido." });
   const trace = [];
   try {
+    requireSameOrigin(req);
+    await requireUser(req);
     const body = readBody(req);
     const t = TYPES[body.tipo];
     if (!t) return res.status(400).json({ error: "Tipo de borrador no válido." });

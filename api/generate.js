@@ -1,4 +1,6 @@
 import { gemini, clip, readBody, fail, HttpError } from "../lib/gemini.js";
+import { requireUser } from "../lib/auth.js";
+import { requireSameOrigin } from "../lib/http.js";
 
 const SCHEMA = {
   type: "OBJECT",
@@ -24,6 +26,8 @@ export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido." });
   const trace = [];
   try {
+    requireSameOrigin(req);
+    await requireUser(req);
     const { title, dept, parent, resp } = readBody(req);
     if (!clip(title).trim()) return res.status(400).json({ error: "Falta el título del puesto." });
 
