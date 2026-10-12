@@ -73,7 +73,9 @@ async function puestos(k, u, { op, id, datos = {}, accion }) {
     exigir(u, "editar", "puestos");
     const v = limpiarPuesto({ ...puestoOut(actual), ...datos });
     const parent_id = actual.parent_id == null ? null : await validarJefe(datos.parent ?? actual.parent_id, pid);
-    await k.updateTable("puestos").set({ ...v, parent_id, estado: "Pendiente", actualizado_el: ahora() }).where("id", "=", pid).execute();
+    // Si cambia la descripción vuelve a revisión; cambiar solo el nombre del área o a quién reporta no la invalida.
+    const cambioDescripcion = ["resp", "obj", "comp", "perfil"].some(c => (v[c] || "") !== (actual[c] || ""));
+    await k.updateTable("puestos").set({ ...v, parent_id, ...(cambioDescripcion && { estado: "Pendiente" }), actualizado_el: ahora() }).where("id", "=", pid).execute();
     return { item: puestoOut(await leer(pid)) };
   }
   if (op === "estado") {
