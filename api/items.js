@@ -3,7 +3,7 @@
 //   op:  "create" {datos, ia} | "update" {id, datos, ia} | "estado" {id, accion} | "delete" {id} | "reset" (solo Administrador)
 import { db, MODULOS_DOC, insertar, ahora, hoy, nombreDe, puestoOut, docOut, historialDe, restablecer, cargarTodo } from "../lib/db.js";
 import { readBody, fail, HttpError, requireSameOrigin } from "../lib/http.js";
-import { requireUser, puede, esAdmin } from "../lib/auth.js";
+import { requireEmpresa, puede, esAdmin } from "../lib/auth.js";
 import { limpiarDocumento, limpiarPuesto } from "../lib/validar.js";
 
 export default async function handler(req, res) {
@@ -11,13 +11,14 @@ export default async function handler(req, res) {
   try {
     requireSameOrigin(req);
     const body = readBody(req);
-    const u = await requireUser(req);
+    // Todo se limita a la empresa del usuario: nunca se lee ni se modifica algo de otra empresa.
+    const u = await requireEmpresa(req);
     const k = await db();
 
     if (body.op === "reset") {
       if (!esAdmin(u)) throw new HttpError(403, "Solo el Administrador puede restablecer los datos de ejemplo.");
-      await restablecer(k);
-      return res.status(200).json(await cargarTodo(k));
+      await restablecer(k, u.empresa_id);
+      return res.status(200).json(await cargarTodo(k, u.empresa_id));
     }
     if (body.mod === "puestos") return res.status(200).json(await puestos(k, u, body));
     if (MODULOS_DOC.includes(body.mod)) return res.status(200).json(await documentos(k, u, body));
@@ -38,12 +39,13 @@ const idValido = id => {
 
 /* ---------- puestos (organigrama y descripciones) ---------- */
 async function puestos(k, u, { op, id, datos = {}, accion }) {
-  const leer = pid => k.selectFrom("puestos").selectAll().where("id", "=", pid).executeTakeFirst();
-  const todos = () => k.selectFrom("puestos").select(["id", "parent_id"]).execute();
+  const E = u.empresa_id;
+  const leer = pid => k.selectFrom("puestos").selectAll().where("id", "=", pid).where("empresa_id", "=", E).executeTakeFirst();
+  const todos = () => k.selectFrom("puestos").select(["id", "parent_id"]).where("empresa_id", "=", E).execute();
 
   // RN-03 / RN-04: el jefe debe existir y no se permiten ciclos en la jerarquía.
   const validarJefe = async (parent, propio) => {
-    if (parent == null || parent === "") return null;
+    if (parent == null || parent === "" || Number(parent) === 0) return null;
     const pid = idValido(parent);
     const lista = await todos();
     const mapa = new Map(lista.map(p => [Number(p.id), p.parent_id == null ? null : Number(p.parent_id)]));
@@ -61,7 +63,7 @@ async function puestos(k, u, { op, id, datos = {}, accion }) {
     if (parent_id == null && (await todos()).length) throw new HttpError(400, "Indica a quién reporta el puesto.");
     // "Revisar y aprobar" solo se respeta si el rol puede aprobar; si no, queda pendiente.
     const aprobada = datos.status === "Completa" && puede(u, "aprobar", "puestos");
-    const nid = await insertar(k, "puestos", { ...v, parent_id, estado: aprobada ? "Completa" : "Pendiente", creado_por: u.nombre, actualizado_el: ahora() });
+    const nid = await insertar(k, "puestos", { ...v, empresa_id: E, parent_id, estado: aprobada ? "Completa" : "Pendiente", creado_por: u.nombre, actualizado_el: ahora() });
     return { item: puestoOut(await leer(nid)), aviso: datos.status === "Completa" && !aprobada ? "Se guardó como pendiente: tu rol no puede aprobar descripciones." : "" };
   }
 
@@ -72,24 +74,26 @@ async function puestos(k, u, { op, id, datos = {}, accion }) {
   if (op === "update") {
     exigir(u, "editar", "puestos");
     const v = limpiarPuesto({ ...puestoOut(actual), ...datos });
+    if (actual.parent_id == null && datos.parent != null && datos.parent !== "" && Number(datos.parent) !== 0)
+      throw new HttpError(400, "El puesto de mayor nivel no reporta a nadie; no se le puede asignar un jefe.");
     const parent_id = actual.parent_id == null ? null : await validarJefe(datos.parent ?? actual.parent_id, pid);
     // Si cambia la descripción vuelve a revisión; cambiar solo el nombre del área o a quién reporta no la invalida.
     const cambioDescripcion = ["resp", "obj", "comp", "perfil"].some(c => (v[c] || "") !== (actual[c] || ""));
-    await k.updateTable("puestos").set({ ...v, parent_id, ...(cambioDescripcion && { estado: "Pendiente" }), actualizado_el: ahora() }).where("id", "=", pid).execute();
+    await k.updateTable("puestos").set({ ...v, parent_id, ...(cambioDescripcion && { estado: "Pendiente" }), actualizado_el: ahora() }).where("id", "=", pid).where("empresa_id", "=", E).execute();
     return { item: puestoOut(await leer(pid)) };
   }
   if (op === "estado") {
     if (accion !== "aprobar") throw new HttpError(400, "Acción no válida.");
     exigir(u, "aprobar", "puestos");
-    await k.updateTable("puestos").set({ estado: "Completa", actualizado_el: ahora() }).where("id", "=", pid).execute();
+    await k.updateTable("puestos").set({ estado: "Completa", actualizado_el: ahora() }).where("id", "=", pid).where("empresa_id", "=", E).execute();
     return { item: puestoOut(await leer(pid)) };
   }
   if (op === "delete") {
     exigir(u, "editar", "puestos");
     if (actual.parent_id == null) throw new HttpError(400, "No se puede eliminar el puesto de mayor nivel.");
-    const hijos = await k.selectFrom("puestos").select("id").where("parent_id", "=", pid).execute();
+    const hijos = await k.selectFrom("puestos").select("id").where("parent_id", "=", pid).where("empresa_id", "=", E).execute();
     if (hijos.length) throw new HttpError(409, "No se puede eliminar un puesto que tiene equipo a cargo.");
-    await k.deleteFrom("puestos").where("id", "=", pid).execute();
+    await k.deleteFrom("puestos").where("id", "=", pid).where("empresa_id", "=", E).execute();
     return { ok: true, id: pid };
   }
   throw new HttpError(400, "Operación no válida.");
@@ -99,32 +103,33 @@ async function puestos(k, u, { op, id, datos = {}, accion }) {
 const PREFIJO = { procesos: "PR", competencias: "CMP", politicas: "POL", kpis: "KPI" };
 const abreviatura = d => (String(d || "GEN").normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/[^A-Za-z ]/g, "").split(" ").filter(w => w.length > 2)[0] || "GEN").slice(0, 3).toUpperCase();
 
-async function nuevoCodigo(k, mod, dept) {
+async function nuevoCodigo(k, E, mod, dept) {
   const pre = mod === "competencias" ? `${PREFIJO[mod]}-` : `${PREFIJO[mod]}-${abreviatura(dept)}-`;
-  const usados = new Set((await k.selectFrom("documentos").select("codigo").where("modulo", "=", mod).where("codigo", "like", pre + "%").execute()).map(r => r.codigo));
+  const usados = new Set((await k.selectFrom("documentos").select("codigo").where("empresa_id", "=", E).where("modulo", "=", mod).where("codigo", "like", pre + "%").execute()).map(r => r.codigo));
   let n = usados.size + 1;
   while (usados.has(pre + String(n).padStart(2, "0"))) n++;
   return pre + String(n).padStart(2, "0");
 }
 
-const anotar = (q, mod, id, version, autor, nota) =>
-  q.insertInto("historial").values({ modulo: mod, registro_id: id, version, fecha: hoy(), autor, nota }).execute();
+const anotar = (q, E, mod, id, version, autor, nota) =>
+  q.insertInto("historial").values({ empresa_id: E, modulo: mod, registro_id: id, version, fecha: hoy(), autor, nota }).execute();
 
 async function documentos(k, u, { mod, op, id, datos, accion, ia }) {
-  const leer = did => k.selectFrom("documentos").selectAll().where("id", "=", did).where("modulo", "=", mod).executeTakeFirst();
-  const respuesta = async did => ({ item: docOut(await leer(did), await historialDe(k, mod, did)) });
+  const E = u.empresa_id;
+  const leer = did => k.selectFrom("documentos").selectAll().where("id", "=", did).where("modulo", "=", mod).where("empresa_id", "=", E).executeTakeFirst();
+  const respuesta = async did => ({ item: docOut(await leer(did), await historialDe(k, E, mod, did)) });
   const conIA = ia ? " con apoyo de IA" : "";
 
   if (op === "create") {
     exigir(u, "editar", mod);
     const v = limpiarDocumento(mod, datos);
     const nid = await k.transaction().execute(async tx => {
-      const codigo = await nuevoCodigo(tx, mod, v.dept);
+      const codigo = await nuevoCodigo(tx, E, mod, v.dept);
       const nuevo = await insertar(tx, "documentos", {
-        modulo: mod, codigo, nombre: nombreDe(mod, v), estado: "Borrador", version: 1, datos: JSON.stringify(v),
+        empresa_id: E, modulo: mod, codigo, nombre: nombreDe(mod, v), estado: "Borrador", version: 1, datos: JSON.stringify(v),
         aprobado_por: null, aprobado_el: null, creado_por: u.nombre, actualizado_el: ahora(),
       });
-      await anotar(tx, mod, nuevo, 1, u.nombre, "Creado" + conIA);
+      await anotar(tx, E, mod, nuevo, 1, u.nombre, "Creado" + conIA);
       return nuevo;
     });
     return respuesta(nid);
@@ -144,8 +149,8 @@ async function documentos(k, u, { mod, op, id, datos, accion, ia }) {
       await tx.updateTable("documentos").set({
         nombre: nombreDe(mod, v), datos: JSON.stringify(v), version, actualizado_el: ahora(),
         ...(nuevaVersion && { estado: "En revisión", aprobado_por: null, aprobado_el: null }),
-      }).where("id", "=", did).execute();
-      await anotar(tx, mod, did, version, u.nombre, (nuevaVersion ? "Nueva versión" : "Editado") + conIA);
+      }).where("id", "=", did).where("empresa_id", "=", E).execute();
+      await anotar(tx, E, mod, did, version, u.nombre, (nuevaVersion ? "Nueva versión" : "Editado") + conIA);
     });
     return respuesta(did);
   }
@@ -164,8 +169,8 @@ async function documentos(k, u, { mod, op, id, datos, accion, ia }) {
       await tx.updateTable("documentos").set({
         estado: r.hacia, actualizado_el: ahora(),
         ...(accion === "aprobar" ? { aprobado_por: u.nombre, aprobado_el: hoy() } : { aprobado_por: null, aprobado_el: null }),
-      }).where("id", "=", did).execute();
-      await anotar(tx, mod, did, Number(actual.version), u.nombre, r.nota);
+      }).where("id", "=", did).where("empresa_id", "=", E).execute();
+      await anotar(tx, E, mod, did, Number(actual.version), u.nombre, r.nota);
     });
     return respuesta(did);
   }
@@ -173,8 +178,8 @@ async function documentos(k, u, { mod, op, id, datos, accion, ia }) {
   if (op === "delete") {
     exigir(u, "editar", mod);
     await k.transaction().execute(async tx => {
-      await tx.deleteFrom("historial").where("modulo", "=", mod).where("registro_id", "=", did).execute();
-      await tx.deleteFrom("documentos").where("id", "=", did).execute();
+      await tx.deleteFrom("historial").where("empresa_id", "=", E).where("modulo", "=", mod).where("registro_id", "=", did).execute();
+      await tx.deleteFrom("documentos").where("id", "=", did).where("empresa_id", "=", E).execute();
     });
     return { ok: true, id: did };
   }
