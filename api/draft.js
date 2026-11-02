@@ -76,6 +76,36 @@ Departamento responsable: ${clip(b.departamento, 100) || "No especificado"}
 Puntos clave del usuario: ${clip(b.puntos, 1500) || "Ninguno"}`,
   },
 
+  // Plan de mejora para una persona con desempeño bajo. Nunca recibe nombres: solo el puesto y los resultados.
+  mejora: {
+    schema: obj({
+      diagnostico: S,
+      acciones: {
+        type: "ARRAY",
+        items: obj({
+          accion: S,
+          tipo: { type: "STRING", enum: ["Retroalimentación", "Plan de mejora", "Capacitación", "Seguimiento semanal", "Cambio de funciones", "Reconocimiento"] },
+          responsable: S,
+          plazo_dias: { type: "NUMBER" },
+        }),
+      },
+    }),
+    system: `${BASE}
+Eres especialista en gestión del desempeño. Propones planes de mejora respetuosos, concretos y medibles para una persona cuyo desempeño bajó.
+- Diagnóstico: dos o tres oraciones sobre lo que muestran los resultados (sin juzgar a la persona).
+- Acciones: de 3 a 5, cada una con verbo en infinitivo, ligada a un indicador o competencia concreta; responsable = el jefe inmediato u otro puesto de la empresa; plazo en días (7 a 60).
+- No propongas sanciones, despidos ni medidas disciplinarias o legales: solo acciones de desarrollo y seguimiento.`,
+    prompt: b => `Propón un plan de mejora.
+Puesto: ${clip(b.puesto, 150)} (departamento: ${clip(b.departamento, 100) || "No especificado"})
+Jefe inmediato: ${clip(b.jefe, 150) || "No especificado"}
+Propósito del puesto: ${clip(b.proposito, 600) || "No registrado"}
+Funciones: ${(Array.isArray(b.funciones) ? b.funciones.slice(0, 15).map(f => clip(f, 200)).join("; ") : "") || "No registradas"}
+Calificación actual: ${clip(b.puntaje, 10)}/100 (cambio contra el periodo anterior: ${clip(b.cambio, 10) || "sin dato"})
+Por debajo del estándar: ${clip(b.debajo, 1500) || "Nada"}
+Lo que bajó respecto al periodo anterior: ${clip(b.bajando, 1500) || "Nada"}
+Comentario del evaluador: ${clip(b.comentario, 800) || "Ninguno"}`,
+  },
+
   kpi: {
     schema: obj({
       kpis: {
@@ -115,7 +145,7 @@ export default async function handler(req, res) {
     const body = readBody(req);
     const t = TYPES[body.tipo];
     if (!t) return res.status(400).json({ error: "Tipo de borrador no válido." });
-    const main = body.nombre || body.titulo || body.departamento;
+    const main = body.nombre || body.titulo || body.departamento || body.puesto;
     if (!clip(main).trim()) return res.status(400).json({ error: "Faltan datos para generar el borrador." });
 
     const text = await gemini({

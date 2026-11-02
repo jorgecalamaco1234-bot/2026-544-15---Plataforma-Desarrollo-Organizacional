@@ -213,6 +213,64 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
 .demo-emp{margin-bottom:10px}.demo-emp small{display:block;font-weight:700;font-size:11.5px;color:var(--ink);margin-bottom:6px}
 .tag.off{background:#EEF0F1;color:var(--muted)}
 .perfil-head{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+/* ===== talento y estructura: niveles de desempeño con los colores del manual ===== */
+.nav-badge{margin-left:auto;background:var(--orange);color:var(--ink);border-radius:999px;font:700 11px Roboto,sans-serif;padding:1px 8px;min-width:20px;text-align:center}
+.nav button.active .nav-badge{background:#fff;color:var(--deep)}
+.lvl{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:600}
+.lvl b{font:700 12px Roboto,sans-serif}
+.lvl.sob{background:#0032A0;color:#fff}.lvl.cum{background:#1D7EAE;color:#fff}.lvl.rie{background:#FFD9C4;color:var(--ink)}.lvl.baj{background:#FF661B;color:var(--ink)}.lvl.sin{background:#EEF0F1;color:var(--muted)}
+.sbar{display:inline-block;vertical-align:middle;width:90px;height:7px;border-radius:7px;background:var(--line);overflow:hidden;margin:0 6px}.sbar>i{display:block;height:100%;border-radius:7px}
+td .sbar{display:block;width:100%;max-width:170px;margin:7px 0 0}
+.up{color:var(--blue);font-weight:700;font-size:12px}.down{color:#C2410C;font-weight:700;font-size:12px}
+.spark{display:block}
+.pdots{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle}.pdots i{width:8px;height:8px;border-radius:50%;display:block}.pdots i.vac{border:1.5px dashed var(--gray);background:transparent;width:7px;height:7px}
+.lvl-cards{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:10px}
+.lvl-card{background:#fff;border:0;border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;text-align:left;border-top:5px solid var(--c,var(--deep));display:flex;flex-direction:column;gap:2px;font:inherit;color:var(--ink);cursor:pointer}
+.lvl-card b{font:700 26px Roboto,sans-serif;color:var(--ink)}.lvl-card span{font-weight:700;font-size:13px}.lvl-card small{font-size:11px;color:var(--muted)}
+.lvl-card.on{outline:2px solid var(--c);background:var(--tint)}.lvl-card.prom{cursor:default;border-top-color:var(--ink);background:var(--bg)}
+.dist{display:flex;height:10px;border-radius:10px;overflow:hidden;margin:0 0 16px;background:var(--line)}.dist i{display:block;height:100%}
+tr.baja td{opacity:.6}
+table.mini th{text-transform:none;letter-spacing:0}
+#puestosBody td:nth-child(4){min-width:240px;max-width:340px}#puestosBody td:nth-child(5){min-width:200px}
+.persona-head{display:grid;grid-template-columns:1fr auto auto;gap:18px;align-items:center;padding:14px 16px;border-radius:14px;background:var(--bg);border-left:6px solid var(--c)}
+.big-score{display:flex;flex-direction:column;align-items:center;gap:4px;min-width:110px}.big-score b{font:700 38px/1 Roboto,sans-serif;color:var(--c,var(--ink))}.big-score span{font-weight:700;font-size:13px}.big-score small{font-size:11px;color:var(--muted)}
+.big-score.inline{flex-direction:row;gap:10px;min-width:0}
+.part{display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed var(--line);font-size:13px;width:100%}.part>span:first-child{flex:1}.part b{font:700 12px Roboto,sans-serif;min-width:34px;text-align:right}.part .sbar{width:120px}
+.part.yo{font-weight:700;background:var(--tint);border-radius:6px;padding:5px 6px}
+table.mini.wide{width:100%}table.mini.wide th{width:auto;color:var(--muted);background:var(--bg);font-size:11px}table.mini.wide td{font-size:12.5px}
+.d.bajando{border-left:4px solid var(--orange)!important}.d.mejora{border-left:4px solid var(--blue)!important}
+.accion{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px dashed var(--line);font-size:13px}.accion.cerrada{opacity:.65}
+.hist-ev{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:13px}.hist-ev>span:first-child{min-width:80px}
+.plist{display:flex;flex-wrap:wrap;gap:6px}.pbtn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 6px 4px 12px;display:inline-flex;gap:8px;align-items:center;font:600 12.5px "Open Sans",sans-serif;color:var(--ink);cursor:pointer}.pbtn:hover{border-color:var(--blue);background:var(--tint)}
+.sub-h{margin:18px 0 8px;font-size:13px;color:var(--deep);text-transform:uppercase;letter-spacing:.06em}
+.perfil-box{margin-top:12px;background:var(--tint);border-radius:10px;padding:10px 12px;font-size:13px}.perfil-box b{display:block;font-size:12px;color:var(--deep);margin-bottom:3px}
+.cand-score{position:sticky;top:-22px;z-index:2;background:#fff;border-bottom:1px solid var(--line);padding:4px 0 10px;margin-bottom:4px;min-height:44px;display:flex;flex-direction:column;gap:4px}
+.alerta{display:grid;grid-template-columns:110px 1fr auto;gap:14px;align-items:center;background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:10px;border-left:6px solid var(--gray);font-size:13.5px}
+.alerta.baj{border-left-color:#FF661B}.alerta.rie{border-left-color:#FFA26B}.alerta.ok{opacity:.7}
+.al-prio{display:flex;flex-direction:column;gap:6px;align-items:flex-start}.al-body>div{margin-top:3px}
+.vac-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:16px}
+.card.vac{display:flex;flex-direction:column;gap:6px;border-top:5px solid var(--orange)}
+.dup{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;padding:12px;border-radius:12px;background:var(--bg);margin-bottom:8px;font-size:13px}
+.dup>div:not(.toolbar) span{display:block;color:var(--muted)}.dup .toolbar{grid-column:1/-1}
+.dup-eq{background:#FFD9C4;border-radius:999px;padding:4px 10px;font:700 12px Roboto,sans-serif}
+.lvl-legend{display:flex;flex-wrap:wrap;gap:8px 14px;margin-bottom:12px;font-size:12px}.lvl-legend span{display:inline-flex;gap:6px;align-items:center}.lvl-legend i{width:12px;height:12px;border-radius:3px}
+.valor{margin-bottom:18px}.valor-grid{display:grid;grid-template-columns:200px 1fr 1fr;gap:22px;align-items:center}
+.ring{width:180px;height:180px;border-radius:50%;background:conic-gradient(var(--c) calc(var(--v)*1%),var(--line) 0);display:grid;place-items:center}
+.ring>div{width:140px;height:140px;border-radius:50%;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring b{font:700 40px/1 Roboto,sans-serif;color:var(--ink)}.ring span{font-size:11.5px;font-weight:700;margin-top:4px}.ring small{font-size:11px;color:var(--muted)}
+.comp-btn{border:0;background:transparent;cursor:pointer;font:inherit;color:var(--ink);text-align:left;border-radius:6px}.comp-btn:hover{background:var(--tint)}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tile{border:0;background:var(--bg);border-radius:14px;padding:14px;text-align:left;font:inherit;color:var(--ink);cursor:pointer;display:flex;flex-direction:column;gap:2px}.tile b{font:700 26px Roboto,sans-serif}.tile span{font-size:12px;color:var(--muted)}
+.tile.hot{background:#FFD9C4}.tile:hover{box-shadow:var(--shadow-h)}
+.confianza{margin-top:14px;padding-top:12px;border-top:1px solid var(--line);font-size:12px;color:var(--muted)}
+#repPrint h2{margin:0;font-size:22px;color:var(--deep)}#repPrint h3{font-size:15px;margin:18px 0 8px;color:var(--deep)}#repPrint p{font-size:13px}
+.rep-head{display:flex;justify-content:space-between;gap:16px;align-items:center;border-bottom:3px solid var(--deep);padding-bottom:12px}
+.rep-idx{display:flex;gap:10px;align-items:center}.rep-idx b{font:700 44px Roboto,sans-serif;color:var(--c)}.rep-idx span{font-size:12px;font-weight:700}
+.rep-t{width:100%;border-collapse:collapse;font-size:12px}.rep-t th,.rep-t td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}.rep-t th{background:var(--bg)}
+.rep-foot{color:var(--muted);font-size:11px!important;margin-top:18px;border-top:1px solid var(--line);padding-top:8px}
+@media(max-width:1100px){.lvl-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.valor-grid{grid-template-columns:1fr}.ring{margin:0 auto}}
+@media(max-width:700px){.persona-head{grid-template-columns:1fr}.alerta{grid-template-columns:1fr}.dup{grid-template-columns:1fr}.lvl-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.tiles{grid-template-columns:1fr}}
+@media print{body.imprimiendo *{visibility:hidden}body.imprimiendo #repPrint,body.imprimiendo #repPrint *{visibility:visible}body.imprimiendo #repPrint{position:absolute;left:0;top:0;width:100%}body.imprimiendo .modal{background:none;backdrop-filter:none;position:static}body.imprimiendo .mc{box-shadow:none;max-height:none;overflow:visible}}
 </style>
 </head>
 <body>
@@ -228,6 +286,9 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
 <symbol id="i-comp" viewBox="0 0 24 24"><circle cx="12" cy="9" r="5"/><path d="M9 13.5 7.5 21l4.5-2.5 4.5 2.5-1.5-7.5"/></symbol>
 <symbol id="i-pol" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 4.5-3 8.3-7 10-4-1.7-7-5.5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
 <symbol id="i-kpi" viewBox="0 0 24 24"><path d="M4 20V4M4 20h16"/><path d="M8 16v-4M12 16V8M16 16v-6"/></symbol>
+<symbol id="i-perf" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 14l2-3 2 2 2-4"/></symbol>
+<symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l9.5 17h-19z"/><path d="M12 10v4M12 17.5v.01"/></symbol>
+<symbol id="i-hire" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.5"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M17 8v6M14 11h6"/></symbol>
 <symbol id="i-mk" viewBox="0 0 24 24"><path d="M3 17l6-6 4 4 8-8M15 7h6v6"/></symbol>
 </defs></svg>
 
@@ -273,6 +334,11 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
       <button data-page="organigrama"><svg class="i"><use href="#i-org"/></svg>Organigramas</button>
       <button data-page="puestos"><svg class="i"><use href="#i-doc"/></svg>Descripciones de puesto</button>
       <button data-page="competencias"><svg class="i"><use href="#i-comp"/></svg>Competencias</button>
+      <button data-page="estructura"><svg class="i"><use href="#i-lv"/></svg>Análisis de estructura<span class="nav-badge" id="badgeEstructura" hidden></span></button>
+      <div class="nav-label">Talento</div>
+      <button data-page="desempeno"><svg class="i"><use href="#i-perf"/></svg>Desempeño</button>
+      <button data-page="alertas"><svg class="i"><use href="#i-alert"/></svg>Alertas<span class="nav-badge" id="badgeAlertas" hidden></span></button>
+      <button data-page="contratacion"><svg class="i"><use href="#i-hire"/></svg>Contratación</button>
       <div class="nav-label">Gestión</div>
       <button data-page="procesos"><svg class="i"><use href="#i-flow"/></svg>Procesos ISO</button>
       <button data-page="politicas"><svg class="i"><use href="#i-pol"/></svg>Políticas</button>
@@ -325,7 +391,7 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
 
     <section id="organigrama" class="page">
       <div class="sh"><h3 id="orgTitle">Organigrama de la empresa</h3>
-        <div class="toolbar"><button class="btn" onclick="collapseAll(true)">Contraer todo</button><button class="btn" onclick="collapseAll(false)">Expandir todo</button><button class="btn" data-perm="admin" onclick="resetOrg()">Restablecer</button><button class="btn primary" data-perm="editar:puestos" onclick="openOrgModal()">+ Agregar puesto</button></div></div>
+        <div class="toolbar"><select class="select" id="orgColor" style="width:auto" onchange="modoColor=this.value;renderOrg()" aria-label="Colorear el organigrama"><option value="dept">Color por departamento</option><option value="desempeno">Color por desempeño</option></select><button class="btn" onclick="collapseAll(true)">Contraer todo</button><button class="btn" onclick="collapseAll(false)">Expandir todo</button><button class="btn" data-perm="admin" onclick="resetOrg()">Restablecer</button><button class="btn primary" data-perm="editar:puestos" onclick="openOrgModal()">+ Agregar puesto</button></div></div>
       <div class="legend" id="legend"></div>
       <div class="orgwrap"><div class="lv" id="lv"></div><div class="scroll"><div class="canvas" id="canvas"></div></div></div>
       <p style="font-size:12px;color:var(--muted)">Haz clic en un puesto para ver su descripción o agregarle un subordinado. El botón numerado muestra u oculta a su equipo.</p>
@@ -334,7 +400,7 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
     <section id="puestos" class="page">
       <div class="sh"><h3>Descripciones de puesto</h3>
         <div class="toolbar"><input class="input" id="searchPuesto" placeholder="Buscar puesto..." style="width:220px" oninput="renderPuestos()"><button class="btn primary" data-perm="editar:puestos" onclick="openPuestoModal()">+ Nuevo puesto</button></div></div>
-      <div class="card"><div class="tw"><table><thead><tr><th>Puesto</th><th>Departamento</th><th>Reporta a</th><th>Responsabilidades</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="puestosBody"></tbody></table></div></div>
+      <div class="card"><div class="tw"><table><thead><tr><th>Puesto</th><th>Departamento</th><th>Reporta a</th><th>Propósito</th><th>Indicadores de estándar</th><th>Plazas</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="puestosBody"></tbody></table></div></div>
     </section>
 
     <section id="ia" class="page">
@@ -345,7 +411,7 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
             <div class="field"><label>Título del puesto</label><input class="input" id="aiTitle" value="Coordinador de Calidad"></div>
             <div class="field"><label>Departamento</label><input class="input" id="aiDept" value="Calidad" list="deptList"></div>
             <div class="field s2"><label>Reporta a</label><select class="select" id="aiParent"></select></div>
-            <div class="field s2"><label>Responsabilidades clave</label><textarea class="textarea" id="aiResp">Dar seguimiento a indicadores de calidad; coordinar documentación; apoyar auditorías internas.</textarea></div>
+            <div class="field s2"><label>Funciones clave</label><textarea class="textarea" id="aiResp">Dar seguimiento a indicadores de calidad; coordinar documentación; apoyar auditorías internas.</textarea></div>
           </div>
           <div class="toolbar" style="margin-top:14px"><button class="btn primary" id="aiGenBtn" data-perm="editar:puestos" onclick="generateAI()">✦ Generar borrador</button><button class="btn" onclick="clearAI()">Limpiar</button></div>
           <p class="perm-note" data-perm-not="editar:puestos" style="margin-top:13px">Tu rol puede consultar puestos, pero solo Administrador y Recursos Humanos crean descripciones con la IA.</p>
@@ -360,6 +426,10 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
         <p style="font-size:11px;color:var(--muted);margin:10px 0 0">El asistente conoce los puestos, procesos, competencias, políticas y KPIs registrados en esta plataforma. Sus respuestas son sugerencias que deben revisarse.</p>
       </div>
     </section>
+    <section id="estructura" class="page"></section>
+    <section id="desempeno" class="page"></section>
+    <section id="alertas" class="page"></section>
+    <section id="contratacion" class="page"></section>
     <section id="procesos" class="page"></section>
     <section id="competencias" class="page"></section>
     <section id="politicas" class="page"></section>
@@ -381,7 +451,8 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
   <div class="mh"><h3>Nuevo puesto</h3><button class="close" onclick="closeModal('puestoModal')" aria-label="Cerrar">×</button></div>
   <div class="fg"><div class="field"><label>Nombre del puesto</label><input class="input" id="newName"></div><div class="field"><label>Departamento</label><input class="input" id="newDept" list="deptList"></div>
   <div class="field s2"><label>Reporta a</label><select class="select" id="newParent"></select></div>
-  <div class="field s2"><label>Responsabilidades</label><textarea class="textarea" id="newResp" placeholder="Escribe 2 o 3 responsabilidades clave..."></textarea></div></div>
+  <div class="field s2"><label>Funciones (una por línea)</label><textarea class="textarea" id="newResp" placeholder="Escribe 2 o 3 funciones clave, una por línea..."></textarea></div></div>
+  <p class="note" style="margin:10px 0 0">Después completa el propósito y los indicadores de estándar desde "Editar puesto": sin ellos la descripción no se puede aprobar.</p>
   <div style="margin-top:16px;text-align:right"><button class="btn" onclick="closeModal('puestoModal')">Cancelar</button> <button class="btn primary" onclick="addPuesto()">Guardar</button></div>
 </div></div>
 <div class="modal" id="detailModal"><div class="mc">
@@ -393,12 +464,14 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
     <div class="field"><label for="epName">Nombre del puesto *</label><input class="input" id="epName"></div>
     <div class="field"><label for="epDept">Departamento *</label><input class="input" id="epDept" list="deptList"></div>
     <div class="field s2"><label for="epParent">Reporta a</label><select class="select" id="epParent"></select><p class="note" id="epParentNote" style="margin:6px 0 0"></p></div>
-    <div class="field s2"><label for="epObj">Objetivo del puesto</label><textarea class="textarea" id="epObj" style="min-height:60px"></textarea></div>
-    <div class="field s2"><label for="epResp">Responsabilidades (separadas por punto y coma)</label><textarea class="textarea" id="epResp" style="min-height:80px"></textarea></div>
+    <div class="field s2"><label for="epObj">Propósito del puesto * <span class="note">(para qué existe y qué resultado aporta, en una oración)</span></label><textarea class="textarea" id="epObj" style="min-height:60px"></textarea></div>
+    <div class="field s2"><label for="epResp">Funciones * <span class="note">(una por línea; cada función debe tener un solo dueño)</span></label><textarea class="textarea" id="epResp" style="min-height:110px"></textarea></div>
+    <div class="field s2"><label for="epInd">Indicadores de estándar * <span class="note">(uno por línea: Nombre | meta | unidad | mayor o menor)</span></label><textarea class="textarea" id="epInd" style="min-height:70px" placeholder="Registros capturados a tiempo | 95 | % | mayor&#10;Errores en registros | 2 | % | menor"></textarea></div>
+    <div class="field"><label for="epPlazas">Plazas (personas en este puesto)</label><input class="input" id="epPlazas" type="number" min="1" max="500"></div>
     <div class="field s2"><label for="epComp">Competencias (separadas por coma)</label><input class="input" id="epComp"></div>
     <div class="field s2"><label for="epPerfil">Perfil académico</label><textarea class="textarea" id="epPerfil" style="min-height:60px"></textarea></div>
   </div>
-  <p class="note" style="margin:12px 0 0">Si cambias objetivo, responsabilidades, competencias o perfil, la descripción vuelve a "Pendiente" para revisión. Cambiar a quién reporta no la afecta.</p>
+  <p class="note" style="margin:12px 0 0">Si cambias propósito, funciones, indicadores, competencias o perfil, la descripción vuelve a "Pendiente" para revisión. Cambiar a quién reporta o las plazas no la afecta.</p>
   <div style="margin-top:16px;text-align:right"><button class="btn" onclick="closeModal('editPuestoModal')">Cancelar</button> <button class="btn primary" id="epSave" onclick="saveEditPuesto()">Guardar cambios</button></div>
 </div></div>
 <div class="modal" id="welcomeModal"><div class="mc" style="width:min(760px,100%)">
@@ -477,6 +550,9 @@ const openModal=id=>$(id).classList.add("open"),closeModal=id=>$(id).classList.r
 /* organigrama por niveles */
 const W=214,H=98,GX=26,GY=66,PX=28,PAL=["#1D7EAE","#0032A0","#FF661B","#231F20","#98DAE9","#BDC6C3"];
 const LV=["Dirección","Gerencias","Coordinación y supervisión","Operativo"];
+// Color de cada nivel de la jerarquía (del manual de identidad): Dirección, Gerencias, Coordinación, Operativo
+const LVC=["#0032A0","#1D7EAE","#98DAE9","#BDC6C3"];
+let modoColor="dept";
 const depts=()=>[...new Set(puestos.map(p=>p.dept))];
 const color=d=>PAL[depts().indexOf(d)%PAL.length];
 function kidsOf(){
@@ -496,19 +572,19 @@ function renderOrg(){
   const top=d=>d*rowH+GY/2;let paths="",nodes="",bands="",lv="";
   for(let d=0;d<=maxD;d++){
     bands+=`<div class="band" style="top:${d*rowH}px;height:${rowH}px"></div>`;
-    lv+=`<div style="height:${rowH}px"><b>Nivel ${d+1}</b><small>${LV[Math.min(d,3)]}</small></div>`;
+    lv+=`<div style="height:${rowH}px;box-shadow:inset 5px 0 0 ${LVC[Math.min(d,3)]}"><b>Nivel ${d+1}</b><small>${LV[Math.min(d,3)]}</small></div>`;
   }
   puestos.forEach(p=>{
-    const q=pos[p.id];if(!q)return;const x=q.x+PX,y=top(q.d),c=color(p.dept),n=(m[p.id]||[]).length;
+    const q=pos[p.id];if(!q)return;const x=q.x+PX,y=top(q.d),c=modoColor==="desempeno"&&typeof colorPuesto==="function"?colorPuesto(p.id):color(p.dept),n=(m[p.id]||[]).length;
     (m[p.id]||[]).forEach(k=>{const r=pos[k.id];if(!r)return;const px=x+W/2,py=y+H,cx=r.x+PX+W/2;paths+=`<path d="M${px} ${py}V${py+GY/2}H${cx}V${top(r.d)}"/>`});
     nodes+=`<div class="node${p===root?" root":""}${focusDept&&focusDept!==p.dept?" dim":""}" tabindex="0" role="button" data-id="${p.id}" style="left:${x}px;top:${y}px;width:${W}px;height:${H}px"><span class="bar" style="background:${c}"></span>
-      <div class="t">${esc(p.name)}</div><div class="dp">${esc(p.dept)}</div>
-      <div class="ft"><span><i class="dot" style="background:${p.status==="Completa"?"#1D7EAE":"#FF661B"}"></i>${esc(p.status)}</span>${n?`<button class="tg" data-t="${p.id}" title="${collapsed.has(p.id)?"Mostrar":"Ocultar"} equipo">${collapsed.has(p.id)?"▸":"▾"} ${n}</button>`:""}</div></div>`;
+      <div class="t">${esc(p.name)}</div><div class="dp">${esc(p.dept)}${typeof puntosPuesto==="function"?puntosPuesto(p):""}</div>
+      <div class="ft">${modoColor==="desempeno"&&typeof resumenPuesto==="function"?resumenPuesto(p):`<span><i class="dot" style="background:${p.status==="Completa"?"#1D7EAE":"#FF661B"}"></i>${esc(p.status)}</span>`}${n?`<button class="tg" data-t="${p.id}" title="${collapsed.has(p.id)?"Mostrar":"Ocultar"} equipo">${collapsed.has(p.id)?"▸":"▾"} ${n}</button>`:""}</div></div>`;
   });
   $("lv").style.height=ch+"px";$("lv").innerHTML=lv;
   $("canvas").style.cssText=`width:${cw}px;height:${ch}px`;
   $("canvas").innerHTML=bands+`<svg width="${cw}" height="${ch}">${paths}</svg>`+nodes;
-  $("legend").innerHTML=depts().map(d=>`<button class="chip${focusDept===d?" on":""}" data-d="${esc(d)}"><i style="background:${color(d)}"></i>${esc(d)}</button>`).join("");
+  $("legend").innerHTML=modoColor==="desempeno"&&typeof leyendaNiveles==="function"?leyendaNiveles():depts().map(d=>`<button class="chip${focusDept===d?" on":""}" data-d="${esc(d)}"><i style="background:${color(d)}"></i>${esc(d)}</button>`).join("");
   updateStats();
 }
 $("canvas").onclick=e=>{
@@ -535,8 +611,11 @@ function showPuesto(id){
   $("detailTitle").textContent=p.name;
   $("detailBody").innerHTML=`<div class="details">
     <div class="d"><b>Departamento y líder</b>${esc(p.dept)}${boss?" · reporta a "+esc(boss.name):" · máxima autoridad"}</div>
-    ${p.obj?`<div class="d"><b>Objetivo del puesto</b>${esc(p.obj)}</div>`:""}
-    <div class="d"><b>Responsabilidades</b>${esc(p.resp)}</div><div class="d"><b>Competencias</b>${comp}</div>
+    <div class="d"><b>Propósito del puesto</b>${p.obj?esc(p.obj):'<span class="tag warn">Sin propósito definido</span>'}</div>
+    <div class="d"><b>Funciones</b>${lineas(p.resp).length?`<ul class="ul">${lineas(p.resp).map(f=>`<li>${esc(f)}${typeof repetidaEn==="function"&&repetidaEn(p.id,f)?` <span class="tag warn" title="Otro puesto tiene una función igual o muy parecida">Repetida con ${esc(repetidaEn(p.id,f))}</span>`:""}</li>`).join("")}</ul>`:"<em>Sin funciones registradas.</em>"}</div>
+    <div class="d"><b>Indicadores de estándar</b>${(p.indicadores||[]).length?`<table class="mini"><tbody>${p.indicadores.map(i=>`<tr><th style="width:auto">${esc(i.nombre)}</th><td>Meta ${i.sentido==="menor"?"≤":"≥"} ${esc(i.meta)} ${esc(i.unidad)}</td></tr>`).join("")}</tbody></table>`:'<span class="tag warn">Sin indicadores: no se puede aprobar ni evaluar a quien lo ocupa</span>'}</div>
+    ${typeof personasPuestoHTML==="function"?personasPuestoHTML(p):""}
+    <div class="d"><b>Competencias</b>${comp}</div>
     ${p.perfil?`<div class="d"><b>Perfil académico</b>${esc(p.perfil)}</div>`:""}
     <div class="d"><b>Equipo a cargo</b>${team.length?team.map(t=>esc(t.name)).join(", "):"Sin subordinados directos."}</div>
     <div class="d"><b>Estado</b><span class="tag ${cls(p.status)}">${esc(p.status)}</span></div></div>
@@ -557,7 +636,7 @@ function equipoDe(id){const out=new Set(),pila=[id];while(pila.length){const x=p
 function openEditPuesto(id){
   const p=byId(id);if(!p)return;editId=id;fillParents();
   $("epTitle").textContent="Editar puesto: "+p.name;
-  $("epName").value=p.name;$("epDept").value=p.dept;$("epObj").value=p.obj||"";$("epResp").value=p.resp||"";$("epComp").value=(p.comp||[]).join(", ");$("epPerfil").value=p.perfil||"";
+  $("epName").value=p.name;$("epDept").value=p.dept;$("epObj").value=p.obj||"";$("epResp").value=lineas(p.resp).join("\n");$("epInd").value=indATexto(p.indicadores);$("epPlazas").value=p.plazas||1;$("epComp").value=(p.comp||[]).join(", ");$("epPerfil").value=p.perfil||"";
   const sel=$("epParent"),eq=equipoDe(id);
   if(p.parent==null){sel.innerHTML='<option value="">— Máxima autoridad: no reporta a nadie —</option>';sel.disabled=true;$("epParentNote").textContent="Es el puesto de mayor nivel del organigrama."}
   else{
@@ -573,21 +652,22 @@ async function saveEditPuesto(){
   const parent=p.parent==null?null:+$("epParent").value,btn=$("epSave");
   btn.disabled=true;btn.textContent="Guardando...";
   try{
-    const d=await api("/api/items",{mod:"puestos",op:"update",id:editId,datos:{name,dept,parent,obj:$("epObj").value.trim(),resp:$("epResp").value.trim(),comp:$("epComp").value.split(",").map(x=>x.trim()).filter(Boolean),perfil:$("epPerfil").value.trim()}});
+    const datos={name,dept,parent,obj:$("epObj").value.trim(),funciones:lineas($("epResp").value),indicadores:textoAInd($("epInd").value),plazas:+$("epPlazas").value||1,comp:$("epComp").value.split(",").map(x=>x.trim()).filter(Boolean),perfil:$("epPerfil").value.trim()};
+    const d=await conRepetidas(f=>api("/api/items",{mod:"puestos",op:"update",id:editId,datos:{...datos,forzar:f}}));
     replacePuesto(d.item);if(d.item.parent!=null)collapsed.delete(d.item.parent);save();
-    closeModal("editPuestoModal");renderOrg();renderPuestos();updateStats();
+    closeModal("editPuestoModal");await recargarTalento();renderOrg();renderPuestos();updateStats();
     toast(parent!==p.parent?`Ahora ${d.item.name} reporta a ${byId(d.item.parent).name}.`:"Puesto actualizado.");
   }catch(e){toast(e.message)}
   finally{btn.disabled=false;btn.textContent="Guardar cambios"}
 }
 
 /* bienvenida: lo que cada rol puede hacer */
-const MOD_NOMBRES={puestos:["Organigrama y descripciones de puesto","organigrama"],competencias:["Competencias","competencias"],procesos:["Procesos ISO","procesos"],politicas:["Políticas corporativas","politicas"],kpis:["KPIs y desempeño","kpis"]};
+const MOD_NOMBRES={puestos:["Organigrama y descripciones de puesto","organigrama"],competencias:["Competencias","competencias"],procesos:["Procesos ISO","procesos"],politicas:["Políticas corporativas","politicas"],kpis:["KPIs y desempeño","kpis"],talento:["Desempeño y alertas (Aprobar = evaluar)","desempeno"],contratacion:["Contratación (Aprobar = decidir)","contratacion"]};
 const ROL_INTRO={
   "Administrador":"Tienes acceso completo a tu empresa: creas, editas y apruebas en todos los módulos, gestionas los usuarios y el logo de la empresa, y puedes restablecer los datos de ejemplo.",
-  "Recursos Humanos":"Gestionas el organigrama, las descripciones de puesto y el catálogo de competencias. También puedes proponer políticas y KPIs.",
-  "Calidad":"Gestionas los procesos ISO y apruebas las descripciones de puesto. También puedes proponer políticas y KPIs.",
-  "Dirección":"Consultas toda la información de la empresa y apruebas las políticas corporativas y los KPIs."
+  "Recursos Humanos":"Gestionas el organigrama, las descripciones de puesto, el catálogo de competencias, las personas y su desempeño, y la contratación. También puedes proponer políticas y KPIs.",
+  "Calidad":"Gestionas los procesos ISO y apruebas las descripciones de puesto. También puedes proponer políticas y KPIs, y consultar el desempeño y las alertas.",
+  "Dirección":"Consultas toda la información de la empresa, apruebas las políticas corporativas y los KPIs, evalúas el desempeño y tomas la decisión final de contratación."
 };
 function showWelcome(){
   if(!usuario)return;
@@ -605,24 +685,32 @@ $("userChip").onclick=showWelcome;$("userChip").onkeydown=e=>{if(e.key==="Enter"
 
 /* alta de puestos */
 // Crea el puesto en el servidor; devuelve el puesto guardado o null si hubo error (ya se avisó con un toast)
-async function newPuesto(o){try{const d=await api("/api/items",{mod:"puestos",op:"create",datos:o});puestos.push(d.item);if(d.aviso)toast(d.aviso);return d.item}catch(e){toast(e.message);return null}}
+// Si el servidor detecta funciones repetidas (409), pregunta antes de guardar de todos modos
+async function conRepetidas(enviar){try{return await enviar(false)}catch(e){if(e.status===409&&/repetidas/i.test(e.message)&&confirm(e.message+"\n\n¿Guardar de todos modos? Quedará señalado en Análisis de estructura."))return enviar(true);throw e}}
+async function newPuesto(o){try{const d=await conRepetidas(f=>api("/api/items",{mod:"puestos",op:"create",datos:{...o,forzar:f}}));puestos.push(d.item);if(d.aviso)toast(d.aviso);await recargarTalento();return d.item}catch(e){toast(e.message);return null}}
+// Funciones e indicadores: de texto (una por línea) a lista y al revés
+const lineas=t=>String(t||"").split(/\n|;/).map(s=>s.trim().replace(/\.$/,"")).filter(Boolean).map(s=>s[0].toUpperCase()+s.slice(1));
+const indATexto=a=>(a||[]).map(i=>[i.nombre,i.meta,i.unidad,i.sentido].join(" | ")).join("\n");
+const textoAInd=t=>String(t||"").split("\n").map(l=>l.trim()).filter(Boolean).map(l=>{const[nombre,meta,unidad,sentido]=l.split("|").map(x=>(x||"").trim());return{nombre,meta:meta===""||meta==null?"":+meta,unidad:unidad||"",sentido:/men/i.test(sentido||"")?"menor":"mayor"}});
+// Vuelve a leer los datos calculados en el servidor (funciones repetidas, desempeño, alertas)
+async function recargarTalento(){if(typeof setTalento==="function")try{setTalento(await api("/api/data",null,"GET"))}catch{}}
 async function addOrg(){
   const name=$("orgPosition").value.trim(),dept=$("orgDepartment").value.trim();
   if(!name||!dept){toast("Completa puesto y departamento.");return}
-  const parent=+$("orgReports").value;if(!await newPuesto({name,dept,parent,resp:"Pendiente de definir. Genera el borrador en el Asistente IA."}))return;
+  const parent=+$("orgReports").value;if(!await newPuesto({name,dept,parent,funciones:[]}))return;
   collapsed.delete(parent);save();closeModal("orgModal");renderOrg();renderPuestos();toast(byId(parent)?"Puesto agregado debajo de "+byId(parent).name+".":"Puesto de mayor nivel creado.");
   $("orgPosition").value="";$("orgDepartment").value="";
 }
 async function addPuesto(){
   const name=$("newName").value.trim(),dept=$("newDept").value.trim(),resp=$("newResp").value.trim();
   if(!name||!dept||!resp){toast("Completa los campos del puesto.");return}
-  if(!await newPuesto({name,dept,resp,parent:+$("newParent").value}))return;closeModal("puestoModal");renderPuestos();toast("Puesto guardado.");
+  if(!await newPuesto({name,dept,funciones:lineas(resp),parent:+$("newParent").value}))return;closeModal("puestoModal");renderPuestos();toast("Puesto guardado.");
   ["newName","newDept","newResp"].forEach(i=>$(i).value="");
 }
 function renderPuestos(){
   const q=$("searchPuesto").value.toLowerCase();
   const list=puestos.filter(p=>(p.name+" "+p.dept).toLowerCase().includes(q));
-  $("puestosBody").innerHTML=list.map(p=>`<tr><td><strong>${esc(p.name)}</strong></td><td>${esc(p.dept)}</td><td>${esc(byId(p.parent)?.name||"—")}</td><td>${esc(p.resp)}</td><td><span class="tag ${cls(p.status)}">${esc(p.status)}</span></td><td><div class="toolbar" style="gap:6px;flex-wrap:nowrap"><button class="btn small" onclick="showPuesto(${p.id})">Ver</button>${can("editar","puestos")?`<button class="btn small" onclick="openEditPuesto(${p.id})">Editar</button>`:""}</div></td></tr>`).join("")||`<tr><td colspan="6" class="empty">No se encontraron puestos.</td></tr>`;
+  $("puestosBody").innerHTML=list.map(p=>`<tr><td><strong>${esc(p.name)}</strong></td><td>${esc(p.dept)}</td><td>${esc(byId(p.parent)?.name||"—")}</td><td>${p.obj?esc(p.obj):'<span class="tag warn">Sin propósito</span>'}</td><td>${(p.indicadores||[]).length?p.indicadores.map(i=>`<span class="tag" style="margin:2px 4px 2px 0" title="Meta ${i.sentido==="menor"?"≤":"≥"} ${esc(i.meta)} ${esc(i.unidad)}">${esc(i.nombre)}</span>`).join(""):'<span class="tag warn">Sin indicadores</span>'}</td><td>${typeof plazasTxt==="function"?plazasTxt(p):esc(p.plazas)}</td><td><span class="tag ${cls(p.status)}">${esc(p.status)}</span></td><td><div class="toolbar" style="gap:6px;flex-wrap:nowrap"><button class="btn small" onclick="showPuesto(${p.id})">Ver</button>${can("editar","puestos")?`<button class="btn small" onclick="openEditPuesto(${p.id})">Editar</button>`:""}</div></td></tr>`).join("")||`<tr><td colspan="6" class="empty">No se encontraron puestos.</td></tr>`;
   updateStats();
 }
 
@@ -635,7 +723,7 @@ async function api(path,body,method="POST"){
   const d=await r.json().catch(()=>({}));
   // Sesión vencida en cualquier operación: volver al inicio de sesión
   if(r.status===401&&usuario&&path!=="/api/auth"){endSession(d.error);throw new Error(d.error)}
-  if(!r.ok)throw new Error(d.error||(r.status===404?"El servicio no está disponible en este sitio.":"Error "+r.status+"."));
+  if(!r.ok)throw Object.assign(new Error(d.error||(r.status===404?"El servicio no está disponible en este sitio.":"Error "+r.status+".")),{status:r.status});
   return d;
 }
 async function generateAI(){
@@ -644,30 +732,34 @@ async function generateAI(){
   const btn=$("aiGenBtn");btn.disabled=true;btn.textContent="Generando...";
   $("aiResult").innerHTML='<div class="empty">✦ La IA está redactando el borrador...</div>';
   let d;
-  try{d=await api("/api/generate",{title,dept,parent:boss?`${boss.name} (${boss.dept})`:"",resp:$("aiResp").value.trim()})}
+  // Se mandan las funciones de los demás puestos para que la IA no las repita
+  const otras=puestos.flatMap(p=>lineas(p.resp).map(f=>`${f} (${p.name})`)).slice(0,120);
+  try{d=await api("/api/generate",{title,dept,parent:boss?`${boss.name} (${boss.dept})`:"",resp:$("aiResp").value.trim(),otras})}
   catch(e){$("aiResult").innerHTML=`<div class="empty err-box">${esc(e.message)}</div>`;return}
   finally{btn.disabled=false;btn.textContent="✦ Generar borrador"}
   const list=a=>Array.isArray(a)?a.map(s=>String(s).trim()).filter(Boolean):[];
   const f=(l,i)=>`<div class="field" style="margin-top:10px"><label>${l}</label>${i}</div>`;
   $("aiResult").innerHTML=`<div class="ai-title">Borrador generado: revisa y edita antes de guardar</div><h3 style="margin:5px 0 12px">${esc(title)}</h3>
     ${f("Título del puesto",`<input class="input" id="dTitle" value="${esc(title)}">`)}
-    ${f("Objetivo del puesto",`<textarea class="textarea" id="dObj" style="min-height:60px">${esc(d.objetivo)}</textarea>`)}
-    ${f("Responsabilidades propuestas (una por línea)",`<textarea class="textarea" id="dResp" style="min-height:140px">${esc(list(d.responsabilidades).join("\n"))}</textarea>`)}
+    ${f("Propósito del puesto",`<textarea class="textarea" id="dObj" style="min-height:60px">${esc(d.objetivo)}</textarea>`)}
+    ${f("Funciones propuestas (una por línea)",`<textarea class="textarea" id="dResp" style="min-height:140px">${esc(list(d.responsabilidades).join("\n"))}</textarea>`)}
+    ${f("Indicadores de estándar (Nombre | meta | unidad | mayor o menor)",`<textarea class="textarea" id="dInd" style="min-height:80px">${esc(indATexto(Array.isArray(d.indicadores)?d.indicadores:[]))}</textarea>`)}
     ${f("Competencias sugeridas (separadas por coma)",`<input class="input" id="dComp" value="${esc(list(d.competencias).join(", "))}">`)}
     ${f("Perfil académico",`<textarea class="textarea" id="dPerfil" style="min-height:60px">${esc(d.perfil)}</textarea>`)}
     <p style="font-size:11px;color:var(--muted);margin:10px 0 0">Generado con IA. Nunca se publica sin revisión humana.</p>
     <div class="toolbar" style="margin-top:14px"><button class="btn success" onclick="saveAI('Pendiente')">Guardar para revisión</button>${can("aprobar","puestos")?`<button class="btn primary" onclick="saveAI('Completa')">Revisar y aprobar</button>`:""}<button class="btn" onclick="copyAI()">Copiar borrador</button></div>`;
 }
 async function saveAI(status){
-  const resp=$("dResp").value.split("\n").map(s=>s.trim()).filter(Boolean).join("; ");
-  if(!resp){toast("Escribe al menos una responsabilidad antes de guardar.");return}
-  const p=await newPuesto({name:$("dTitle").value.trim()||"Nuevo puesto",dept:$("aiDept").value.trim()||"Área general",parent:+$("aiParent").value,resp,obj:$("dObj").value.trim(),comp:$("dComp").value.split(",").map(s=>s.trim()).filter(Boolean),perfil:$("dPerfil").value.trim(),status});
+  const funciones=lineas($("dResp").value);
+  if(!funciones.length){toast("Escribe al menos una función antes de guardar.");return}
+  let indicadores;try{indicadores=textoAInd($("dInd").value)}catch{indicadores=[]}
+  const p=await newPuesto({name:$("dTitle").value.trim()||"Nuevo puesto",dept:$("aiDept").value.trim()||"Área general",parent:+$("aiParent").value,funciones,indicadores,obj:$("dObj").value.trim(),comp:$("dComp").value.split(",").map(s=>s.trim()).filter(Boolean),perfil:$("dPerfil").value.trim(),status});
   if(!p)return;
   updateStats();toast(p.status==="Completa"?"Puesto guardado y aprobado.":"Borrador guardado para revisión.");$("aiResult").innerHTML=EMPTY;
 }
 function copyAI(){
   const g=i=>$(i)?.value||"";
-  const t=`Título: ${g("dTitle")}\nObjetivo: ${g("dObj")}\nResponsabilidades: ${g("dResp")}\nCompetencias: ${g("dComp")}\nPerfil académico: ${g("dPerfil")}`;
+  const t=`Título: ${g("dTitle")}\nPropósito: ${g("dObj")}\nFunciones: ${g("dResp")}\nIndicadores: ${g("dInd")}\nCompetencias: ${g("dComp")}\nPerfil académico: ${g("dPerfil")}`;
   navigator.clipboard?.writeText(t).then(()=>toast("Borrador copiado.")).catch(()=>toast("No se pudo copiar automáticamente."));
 }
 function clearAI(){$("aiResult").innerHTML=EMPTY}
@@ -705,5 +797,6 @@ api("/api/auth",null,"GET").then(d=>startSession(d.user)).catch(()=>{});
 </script>
 <script src="modulos.js"></script>
 <script src="empresa.js"></script>
+<script src="talento.js"></script>
 </body>
 </html>

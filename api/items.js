@@ -5,6 +5,7 @@ import { db, MODULOS_DOC, insertar, ahora, hoy, nombreDe, puestoOut, docOut, his
 import { readBody, fail, HttpError, requireSameOrigin } from "../lib/http.js";
 import { requireEmpresa, puede, esAdmin } from "../lib/auth.js";
 import { limpiarDocumento, limpiarPuesto } from "../lib/validar.js";
+import { funcionesDe, funcionesRepetidas } from "../lib/estructura.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido." });
@@ -31,6 +32,17 @@ export default async function handler(req, res) {
 const exigir = (u, accion, mod) => {
   if (!puede(u, accion, mod)) throw new HttpError(403, `Tu rol (${u.rol}) no tiene permiso para ${accion === "aprobar" ? "aprobar" : "modificar"} en este módulo.`);
 };
+// Un puesto aprobado debe tener propósito claro, funciones y al menos un indicador de estándar.
+function faltaParaAprobar(p) {
+  const falta = [];
+  if (!String(p.obj || "").trim()) falta.push("el propósito del puesto");
+  if (!funcionesDe(p.resp).length) falta.push("sus funciones");
+  let ind = [];
+  try { ind = JSON.parse(p.indicadores || "[]") || []; } catch {}
+  if (!ind.length) falta.push("al menos un indicador de estándar");
+  return falta.length ? `falta ${falta.join(", ").replace(/, ([^,]*)$/, " y $1")}.` : "";
+}
+
 const idValido = id => {
   const n = Number(id);
   if (!Number.isInteger(n) || n <= 0) throw new HttpError(400, "Identificador no válido.");
@@ -56,15 +68,35 @@ async function puestos(k, u, { op, id, datos = {}, accion }) {
     return pid;
   };
 
+  // Funciones repetidas: si alguna función ya la tiene otro puesto, se avisa y solo se guarda si el usuario lo confirma (forzar).
+  const revisarRepetidas = async (v, propio) => {
+    if (datos.forzar) return;
+    const otros = (await k.selectFrom("puestos").select(["id", "nombre", "resp"]).where("empresa_id", "=", E).execute()).filter(p => Number(p.id) !== propio);
+    const rep = funcionesRepetidas([...otros, { id: -1, nombre: v.nombre, resp: v.resp }], -1);
+    if (rep.length) {
+      // Agrupa por función propia: "Dar seguimiento a indicadores" ya la tienen Gerente de Calidad y Coordinador de Calidad
+      const porFuncion = new Map();
+      for (const r of rep) {
+        const [mia, otro] = r.a === -1 ? [r.funcionA, r.puestoB] : [r.funcionB, r.puestoA];
+        porFuncion.set(mia, [...new Set([...(porFuncion.get(mia) || []), otro])]);
+      }
+      const lista = [...porFuncion].slice(0, 3).map(([f, ps]) => `"${f}" ya la ${ps.length > 1 ? "tienen" : "tiene"} ${ps.join(" y ")}`).join("; ");
+      throw new HttpError(409, `Funciones repetidas: ${lista}. Cada función debe tener un solo dueño.`);
+    }
+  };
+
   if (op === "create") {
     exigir(u, "editar", "puestos");
     const v = limpiarPuesto(datos);
     const parent_id = await validarJefe(datos.parent);
     if (parent_id == null && (await todos()).length) throw new HttpError(400, "Indica a quién reporta el puesto.");
-    // "Revisar y aprobar" solo se respeta si el rol puede aprobar; si no, queda pendiente.
-    const aprobada = datos.status === "Completa" && puede(u, "aprobar", "puestos");
+    await revisarRepetidas(v, null);
+    // "Revisar y aprobar" solo se respeta si el rol puede aprobar y la descripción está completa; si no, queda pendiente.
+    const falta = faltaParaAprobar(v);
+    const aprobada = datos.status === "Completa" && puede(u, "aprobar", "puestos") && !falta;
     const nid = await insertar(k, "puestos", { ...v, empresa_id: E, parent_id, estado: aprobada ? "Completa" : "Pendiente", creado_por: u.nombre, actualizado_el: ahora() });
-    return { item: puestoOut(await leer(nid)), aviso: datos.status === "Completa" && !aprobada ? "Se guardó como pendiente: tu rol no puede aprobar descripciones." : "" };
+    const aviso = datos.status !== "Completa" || aprobada ? "" : !puede(u, "aprobar", "puestos") ? "Se guardó como pendiente: tu rol no puede aprobar descripciones." : `Se guardó como pendiente: ${falta}`;
+    return { item: puestoOut(await leer(nid)), aviso };
   }
 
   const pid = idValido(id);
@@ -77,14 +109,18 @@ async function puestos(k, u, { op, id, datos = {}, accion }) {
     if (actual.parent_id == null && datos.parent != null && datos.parent !== "" && Number(datos.parent) !== 0)
       throw new HttpError(400, "El puesto de mayor nivel no reporta a nadie; no se le puede asignar un jefe.");
     const parent_id = actual.parent_id == null ? null : await validarJefe(datos.parent ?? actual.parent_id, pid);
-    // Si cambia la descripción vuelve a revisión; cambiar solo el nombre del área o a quién reporta no la invalida.
-    const cambioDescripcion = ["resp", "obj", "comp", "perfil"].some(c => (v[c] || "") !== (actual[c] || ""));
+    await revisarRepetidas(v, pid);
+    // Si cambia la descripción vuelve a revisión; cambiar el nombre del área, las plazas o a quién reporta no la invalida.
+    const prev = { ...actual, resp: funcionesDe(actual.resp).join("\n"), indicadores: actual.indicadores || "[]" };
+    const cambioDescripcion = ["resp", "obj", "comp", "perfil", "indicadores"].some(c => (v[c] || "") !== (prev[c] || ""));
     await k.updateTable("puestos").set({ ...v, parent_id, ...(cambioDescripcion && { estado: "Pendiente" }), actualizado_el: ahora() }).where("id", "=", pid).where("empresa_id", "=", E).execute();
     return { item: puestoOut(await leer(pid)) };
   }
   if (op === "estado") {
     if (accion !== "aprobar") throw new HttpError(400, "Acción no válida.");
     exigir(u, "aprobar", "puestos");
+    const falta = faltaParaAprobar(actual);
+    if (falta) throw new HttpError(400, `No se puede aprobar todavía: ${falta}`);
     await k.updateTable("puestos").set({ estado: "Completa", actualizado_el: ahora() }).where("id", "=", pid).where("empresa_id", "=", E).execute();
     return { item: puestoOut(await leer(pid)) };
   }
@@ -93,6 +129,9 @@ async function puestos(k, u, { op, id, datos = {}, accion }) {
     if (actual.parent_id == null) throw new HttpError(400, "No se puede eliminar el puesto de mayor nivel.");
     const hijos = await k.selectFrom("puestos").select("id").where("parent_id", "=", pid).where("empresa_id", "=", E).execute();
     if (hijos.length) throw new HttpError(409, "No se puede eliminar un puesto que tiene equipo a cargo.");
+    const gente = await k.selectFrom("colaboradores").select("id").where("puesto_id", "=", pid).where("empresa_id", "=", E).where("activo", "=", 1).execute();
+    if (gente.length) throw new HttpError(409, `No se puede eliminar: ${gente.length === 1 ? "hay 1 persona" : `hay ${gente.length} personas`} en este puesto. Cámbialas de puesto o dalas de baja primero.`);
+    await k.deleteFrom("candidatos").where("puesto_id", "=", pid).where("empresa_id", "=", E).execute();
     await k.deleteFrom("puestos").where("id", "=", pid).where("empresa_id", "=", E).execute();
     return { ok: true, id: pid };
   }
