@@ -26,7 +26,8 @@ export default async function handler(req, res) {
     const ok = u && Number(u.activo) === 1 && (await verifyPassword(clip(password, 200), u.pass_hash));
     if (!ok) throw new HttpError(401, "Correo o contraseña incorrectos.");
     if (!esSuper(u)) {
-      const e = u.empresa_id == null ? null : await k.selectFrom("empresas").select("activa").where("id", "=", u.empresa_id).executeTakeFirst();
+      const e = u.empresa_id == null ? null : await k.selectFrom("empresas").select(["activa", "suscripcion"]).where("id", "=", u.empresa_id).executeTakeFirst();
+      if (e?.suscripcion === "pendiente") throw new HttpError(403, "Tu registro no se completó: falta dar de alta la tarjeta. Usa «Prueba gratis» con el mismo correo para terminarlo.");
       if (!e || Number(e.activa) !== 1) throw new HttpError(403, "Tu empresa está desactivada. Contacta al administrador de la plataforma.");
     }
 

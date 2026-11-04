@@ -1,5 +1,6 @@
 import { gemini, clip, readBody, fail, HttpError } from "../lib/gemini.js";
 import { requireUser } from "../lib/auth.js";
+import { exigirEscritura } from "../lib/suscripcion.js";
 import { requireSameOrigin } from "../lib/http.js";
 
 const SCHEMA = {
@@ -37,7 +38,7 @@ export default async function handler(req, res) {
   const trace = [];
   try {
     requireSameOrigin(req);
-    await requireUser(req);
+    exigirEscritura(await requireUser(req)); // la IA no se usa en modo solo lectura
     const { title, dept, parent, resp, otras } = readBody(req);
     if (!clip(title).trim()) return res.status(400).json({ error: "Falta el título del puesto." });
 

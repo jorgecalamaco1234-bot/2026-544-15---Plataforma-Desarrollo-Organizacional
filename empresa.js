@@ -251,9 +251,11 @@ async function cargarEmpresas() {
   try { empresas = (await api("/api/empresas", null, "GET")).empresas; pintarEmpresas(); }
   catch (e) { $("empBody").innerHTML = `<tr><td colspan="6" class="empty err-box">${esc(e.message)}</td></tr>`; }
 }
+// Suscripción de las empresas que se registraron solas con la prueba gratis (las creadas por IOT no tienen cobro)
+const SUB_TAG = { prueba: ["Prueba gratis", ""], activa: ["Pagando", ""], solo_lectura: ["Solo lectura (sin pago)", "warn"] };
 function pintarEmpresas() {
   $("empBody").innerHTML = empresas.map(e => `<tr><td>${logoHTML(e)}</td><td><b>${esc(e.nombre)}</b></td><td>${e.usuarios}</td><td>${e.puestos}</td>
-    <td><span class="tag ${e.activa ? "" : "off"}">${e.activa ? "Activa" : "Desactivada"}</span></td>
+    <td><span class="tag ${e.activa ? "" : "off"}">${e.activa ? "Activa" : e.suscripcion === "pendiente" ? "Registro sin tarjeta" : "Desactivada"}</span>${SUB_TAG[e.suscripcion] ? `<br><span class="tag ${SUB_TAG[e.suscripcion][1]}" style="margin-top:4px" title="${esc(e.registro)}">${SUB_TAG[e.suscripcion][0]}${e.suscripcion === "prueba" && e.pruebaFin ? " hasta " + new Date(e.pruebaFin).toLocaleDateString("es-MX", { day: "numeric", month: "short" }) : ""}</span>` : ""}</td>
     <td><div class="toolbar" style="gap:6px;flex-wrap:nowrap"><button class="btn small" onclick="abrirEmpresa(${e.id})">Editar</button><button class="btn small${e.activa ? " danger" : ""}" onclick="activarEmpresa(${e.id},${!e.activa})">${e.activa ? "Desactivar" : "Activar"}</button></div></td></tr>`).join("")
     || `<tr><td colspan="6" class="empty">Todavía no hay empresas.</td></tr>`;
 }

@@ -8,6 +8,7 @@
 import { db, insertar, ahora, sembrarDatos } from "../lib/db.js";
 import { readBody, fail, HttpError, requireSameOrigin } from "../lib/http.js";
 import { requireUser, esSuper, esAdmin } from "../lib/auth.js";
+import { exigirEscritura } from "../lib/suscripcion.js";
 import { hashPassword } from "../lib/password.js";
 import { limpiarEmail, limpiarNombre, limpiarPassword, limpiarImagen } from "../lib/validar.js";
 
@@ -21,6 +22,7 @@ async function listar(k) {
   ]);
   return es.map(e => ({
     id: Number(e.id), nombre: e.nombre, logo: e.logo || "", activa: Number(e.activa) === 1, creado: e.creado_el || "",
+    suscripcion: e.suscripcion || "", pruebaFin: e.prueba_fin || "", periodoFin: e.periodo_fin || "", registro: e.registro_email || "",
     usuarios: us.filter(x => Number(x.empresa_id) === Number(e.id) && Number(x.activo) === 1).length,
     puestos: ps.filter(x => Number(x.empresa_id) === Number(e.id)).length,
   }));
@@ -41,6 +43,7 @@ export default async function handler(req, res) {
 
     if (b.op === "mi-empresa") {
       if (!esAdmin(u) || u.empresa_id == null) throw new HttpError(403, "Solo el Administrador puede cambiar los datos de su empresa.");
+      exigirEscritura(u);
       const cambios = { nombre: limpiarNombre(b.nombre, "Nombre de la empresa", 150) };
       const logo = limpiarImagen(b.logo, "Logo", LOGO_KB);
       if (logo !== undefined) cambios.logo = logo;

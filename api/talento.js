@@ -9,6 +9,7 @@ import { readBody, fail, HttpError, requireSameOrigin } from "../lib/http.js";
 import { requireEmpresa, puede } from "../lib/auth.js";
 import { limpiarColaborador, limpiarEvaluacion, limpiarAccion, limpiarCandidato } from "../lib/validar.js";
 import { calificar, evaluarCandidato } from "../lib/talento.js";
+import { exigirEscritura } from "../lib/suscripcion.js";
 
 export default async function handler(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido." });
@@ -16,6 +17,7 @@ export default async function handler(req, res) {
     requireSameOrigin(req);
     const body = readBody(req);
     const u = await requireEmpresa(req);
+    exigirEscritura(u);
     const k = await db();
     // Puntaje en vivo mientras se llena el formulario del candidato (no guarda nada).
     if (body.mod === "candidatos" && body.op === "calcular") {

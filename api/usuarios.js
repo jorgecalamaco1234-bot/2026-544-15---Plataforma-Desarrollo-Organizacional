@@ -4,6 +4,7 @@
 import { db, insertar, ahora, ROLES_EMPRESA } from "../lib/db.js";
 import { readBody, fail, HttpError, requireSameOrigin } from "../lib/http.js";
 import { requireEmpresa, esAdmin } from "../lib/auth.js";
+import { exigirEscritura } from "../lib/suscripcion.js";
 import { hashPassword } from "../lib/password.js";
 import { limpiarEmail, limpiarNombre, limpiarPassword, limpiarRol } from "../lib/validar.js";
 
@@ -20,6 +21,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") return res.status(200).json({ usuarios: await lista() });
     if (req.method !== "POST") return res.status(405).json({ error: "Método no permitido." });
     requireSameOrigin(req);
+    exigirEscritura(u);
     const b = readBody(req);
 
     if (b.op === "create") {

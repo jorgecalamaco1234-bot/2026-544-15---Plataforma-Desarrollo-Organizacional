@@ -36,6 +36,12 @@ if (!process.env.DATABASE_URL && !process.env.POSTGRES_URL) {
   console.log("Base de datos: DATABASE_URL de .env.");
 }
 
+// STRIPE_FALSO=1: pagos simulados para probar la prueba gratis sin cuenta de Stripe (solo en local).
+if (process.env.STRIPE_FALSO) {
+  globalThis.__stripe = (await import("./stripe-falso.mjs")).stripeFalso;
+  console.log("Pagos: Stripe simulado (STRIPE_FALSO).");
+}
+
 const TIPOS = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css", ".json": "application/json", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon" };
 const PRIVADO = /^(\.|node_modules|lib|scripts|api)(\/|$)|\.(docx|pdf|md)$/i;
 
@@ -50,6 +56,9 @@ http.createServer(async (req, res) => {
   adaptarRes(res);
   const url = new URL(req.url, `http://localhost:${PORT}`);
   try {
+    if (url.pathname === "/__stripe" && process.env.STRIPE_FALSO) {
+      return res.status(200).json(globalThis.__stripe._estado(url.searchParams.get("sub"), url.searchParams.get("status")) || { error: "No existe." });
+    }
     const api = url.pathname.match(/^\/api\/([a-z0-9-]+)$/i);
     if (api) {
       const archivo = join(ROOT, "api", api[1] + ".js");

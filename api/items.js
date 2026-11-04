@@ -4,6 +4,7 @@
 import { db, MODULOS_DOC, insertar, ahora, hoy, nombreDe, puestoOut, docOut, historialDe, restablecer, cargarTodo } from "../lib/db.js";
 import { readBody, fail, HttpError, requireSameOrigin } from "../lib/http.js";
 import { requireEmpresa, puede, esAdmin } from "../lib/auth.js";
+import { exigirEscritura } from "../lib/suscripcion.js";
 import { limpiarDocumento, limpiarPuesto } from "../lib/validar.js";
 import { funcionesDe, funcionesRepetidas } from "../lib/estructura.js";
 
@@ -14,6 +15,7 @@ export default async function handler(req, res) {
     const body = readBody(req);
     // Todo se limita a la empresa del usuario: nunca se lee ni se modifica algo de otra empresa.
     const u = await requireEmpresa(req);
+    exigirEscritura(u);
     const k = await db();
 
     if (body.op === "reset") {

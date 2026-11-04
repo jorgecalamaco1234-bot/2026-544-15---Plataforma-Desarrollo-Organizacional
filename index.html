@@ -33,7 +33,7 @@ table{font-family:Roboto,"Open Sans",sans-serif}
 .app{display:flex;min-height:100vh}
 .sidebar{width:250px;background:#fff;border-right:1px solid var(--line);padding:22px 14px;position:sticky;top:0;height:100vh}
 .brand{padding:4px 8px 18px;border-bottom:1px solid var(--line);margin-bottom:16px}.logo{width:100%;max-width:190px;display:block}
-.brand span{display:block;font-size:12px;color:var(--muted);margin-top:14px}
+.brand>span{display:block;font-size:12px;color:var(--muted);margin-top:14px}
 .nav{display:grid;gap:4px}
 .nav button{display:flex;align-items:center;gap:11px;border:0;background:transparent;color:var(--ink);text-align:left;padding:11px 12px;border-radius:10px;font-weight:600;font-size:14px}
 .nav button:hover{background:var(--tint)}.nav button.active{background:var(--tint);color:var(--deep);box-shadow:inset 3px 0 0 var(--deep)}.nav button.active .i{color:var(--deep)}
@@ -272,6 +272,18 @@ table.mini.wide{width:100%}table.mini.wide th{width:auto;color:var(--muted);back
 @media(max-width:1100px){.lvl-cards{grid-template-columns:repeat(3,minmax(0,1fr))}.valor-grid{grid-template-columns:1fr}.ring{margin:0 auto}}
 @media(max-width:700px){.persona-head{grid-template-columns:1fr}.alerta{grid-template-columns:1fr}.dup{grid-template-columns:1fr}.lvl-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.tiles{grid-template-columns:1fr}}
 @media print{body.imprimiendo *{visibility:hidden}body.imprimiendo #repPrint,body.imprimiendo #repPrint *{visibility:visible}body.imprimiendo #repPrint{position:absolute;left:0;top:0;width:100%}body.imprimiendo .modal{background:none;backdrop-filter:none;position:static}body.imprimiendo .mc{box-shadow:none;max-height:none;overflow:visible}}
+/* ===== prueba gratis y suscripción ===== */
+.trial-box{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px;padding:14px 16px;border-radius:14px;background:var(--tint);border:1px solid #CFE6F0}
+.trial-box b{display:block;font-size:14px;color:var(--deep)}.trial-box span{font-size:12px;color:var(--muted)}
+.trial-steps{display:flex;gap:8px;flex-wrap:wrap;margin:-4px 0 16px}.trial-steps span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.trial-steps b{width:20px;height:20px;border-radius:50%;background:var(--deep);color:#fff;display:grid;place-items:center;font-size:11px}
+.trial-note{margin-top:14px;padding:12px 14px;border-radius:12px;background:var(--bg);font-size:12.5px;line-height:1.55}
+label.chk{display:flex;gap:8px;align-items:center;font-size:13px;color:var(--ink);font-weight:400;cursor:pointer}
+.login-ok{margin:10px 0 0;padding:10px 12px;border-radius:10px;background:#DCFCE7;color:#14532D;font-size:13px;line-height:1.5}
+.sub-banner{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-8px 0 18px;padding:10px 16px;border-radius:14px;font-size:13px;font-weight:600}
+.sub-banner.info{background:var(--tint);color:var(--deep)}.sub-banner.ok{background:#DCFCE7;color:#14532D}.sub-banner.warn{background:#FEF3C7;color:#78350F}
+.sub-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.sub-grid>div{background:var(--bg);border-radius:12px;padding:12px 14px}.sub-grid b{display:block;font-size:16px;margin-top:2px}
+@media(max-width:700px){.trial-box,.sub-banner{flex-direction:column;align-items:flex-start}.sub-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -810,5 +822,6 @@ api("/api/auth",null,"GET").then(d=>startSession(d.user)).catch(()=>{});
 <script src="modulos.js"></script>
 <script src="empresa.js"></script>
 <script src="talento.js"></script>
+<script src="pago.js"></script>
 </body>
 </html>
