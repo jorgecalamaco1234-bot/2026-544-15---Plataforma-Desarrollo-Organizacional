@@ -11,17 +11,19 @@ const T = { colaboradores: [], evaluaciones: [], acciones: [], candidatos: [], d
 Object.assign(titles, { estructura: "Análisis de estructura", desempeno: "Desempeño del personal", alertas: "Alertas de acción inmediata", contratacion: "Contratación" });
 
 /* ---------- niveles de desempeño (mismos rangos que el servidor) ---------- */
+// Semáforo para que el nivel se distinga a simple vista: verde, azul institucional, ámbar y rojo.
+// Son colores de estado (fuera de la paleta del manual) y solo se usan para el desempeño. bg: fondo suave del puesto.
 const NIV = {
-  "Sobresaliente": { c: "#0032A0", cls: "sob", rango: "90 a 100" },
-  "Cumple": { c: "#1D7EAE", cls: "cum", rango: "75 a 89" },
-  "En riesgo": { c: "#FFA26B", cls: "rie", rango: "60 a 74" },
-  "Bajo desempeño": { c: "#FF661B", cls: "baj", rango: "menos de 60" },
-  "Sin evaluar": { c: "#BDC6C3", cls: "sin", rango: "" },
+  "Sobresaliente": { c: "#15803D", bg: "#DCFCE7", cls: "sob", rango: "90 a 100" },
+  "Cumple": { c: "#1D7EAE", bg: "#E0F2FE", cls: "cum", rango: "75 a 89" },
+  "En riesgo": { c: "#F59E0B", bg: "#FEF3C7", cls: "rie", rango: "60 a 74" },
+  "Bajo desempeño": { c: "#DC2626", bg: "#FEE2E2", cls: "baj", rango: "menos de 60" },
+  "Sin evaluar": { c: "#BDC6C3", bg: "#F3F5F5", cls: "sin", rango: "" },
 };
 const NIV_ORDEN = Object.keys(NIV);
 const nivelDe = p => (p == null ? "Sin evaluar" : p >= 90 ? "Sobresaliente" : p >= 75 ? "Cumple" : p >= 60 ? "En riesgo" : "Bajo desempeño");
 const NIVEL_COMP = ["", "Básico", "Intermedio", "Avanzado", "Experto"];
-const REC_CLS = { "Contratar": "cum", "Segunda entrevista": "rie", "No recomendable": "baj", "Faltan datos": "sin" };
+const REC_CLS = { "Contratar": "sob", "Segunda entrevista": "rie", "No recomendable": "baj", "Faltan datos": "sin" };
 const DEC_CLS = { "Contratado": "", "En evaluación": "draft", "En espera": "warn", "Descartado": "off" };
 
 /* ---------- datos ---------- */
@@ -80,9 +82,10 @@ function puntosPuesto(p) {
   return `<span class="pdots" title="${g.length} de ${p.plazas} plazas ocupadas">${g.slice(0, 8).map(c => `<i style="background:${NIV[perf(c.id).nivel].c}"></i>`).join("")}${'<i class="vac"></i>'.repeat(Math.min(vac, 4))}</span>`;
 }
 // Color del puesto en modo desempeño: el nivel del promedio de las personas que lo ocupan
-function colorPuesto(pid) {
-  return NIV[nivelDe(prom(genteDe(pid).map(c => perf(c.id).puntaje).filter(x => x != null)))].c;
-}
+const nivelPuesto = pid => nivelDe(prom(genteDe(pid).map(c => perf(c.id).puntaje).filter(x => x != null)));
+function colorPuesto(pid) { return NIV[nivelPuesto(pid)].c; }
+// Estilo del puesto en modo desempeño: fondo suave y borde del color de su nivel
+function estiloPuesto(pid) { const n = NIV[nivelPuesto(pid)]; return `background:${n.bg};border-color:${n.c}`; }
 // Pie del puesto en modo desempeño: promedio y nivel de quienes lo ocupan
 function resumenPuesto(p) {
   const g = genteDe(p.id), pr = prom(g.map(c => perf(c.id).puntaje).filter(x => x != null));

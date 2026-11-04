@@ -81,6 +81,7 @@ th,td{padding:12px 14px;border-bottom:1px solid var(--line);text-align:left;font
 .canvas svg{position:absolute;inset:0;pointer-events:none}.canvas path{fill:none;stroke:#BDC6C3;stroke-width:1.6}
 .node{position:absolute;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 12px 9px 16px;cursor:pointer;box-shadow:0 1px 3px rgba(29,126,174,.12);transition:border-color .15s,opacity .15s}
 .node:hover{border-color:var(--blue)}.node .bar{position:absolute;left:0;top:0;bottom:0;width:6px;border-radius:10px 0 0 10px}
+.node.perf{border-width:2px;padding-left:20px}.node.perf .bar{width:10px}
 .node.root{border:2px solid var(--deep)}.node.dim{opacity:.25}
 .node .t{font:700 13px "Open Sans",sans-serif;line-height:1.25;color:var(--ink)}.node .dp{font-size:11px;color:var(--muted);margin-top:3px}
 .node .ft{display:flex;justify-content:space-between;align-items:center;margin-top:9px;font-size:11px;color:var(--muted)}
@@ -218,12 +219,12 @@ body.super-mode .nav>button:not(.only-super),body.super-mode .nav>.nav-label:not
 .nav button.active .nav-badge{background:#fff;color:var(--deep)}
 .lvl{display:inline-flex;align-items:center;gap:4px;white-space:nowrap;padding:4px 10px;border-radius:999px;font-size:11.5px;font-weight:600}
 .lvl b{font:700 12px Roboto,sans-serif}
-.lvl.sob{background:#0032A0;color:#fff}.lvl.cum{background:#1D7EAE;color:#fff}.lvl.rie{background:#FFD9C4;color:var(--ink)}.lvl.baj{background:#FF661B;color:var(--ink)}.lvl.sin{background:#EEF0F1;color:var(--muted)}
+.lvl.sob{background:#15803D;color:#fff}.lvl.cum{background:#1D7EAE;color:#fff}.lvl.rie{background:#F59E0B;color:var(--ink)}.lvl.baj{background:#DC2626;color:#fff}.lvl.sin{background:#EEF0F1;color:var(--muted)}
 .sbar{display:inline-block;vertical-align:middle;width:90px;height:7px;border-radius:7px;background:var(--line);overflow:hidden;margin:0 6px}.sbar>i{display:block;height:100%;border-radius:7px}
 td .sbar{display:block;width:100%;max-width:170px;margin:7px 0 0}
 .up{color:var(--blue);font-weight:700;font-size:12px}.down{color:#C2410C;font-weight:700;font-size:12px}
 .spark{display:block}
-.pdots{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle}.pdots i{width:8px;height:8px;border-radius:50%;display:block}.pdots i.vac{border:1.5px dashed var(--gray);background:transparent;width:7px;height:7px}
+.pdots{display:inline-flex;gap:3px;margin-left:6px;vertical-align:middle}.pdots i{width:10px;height:10px;border-radius:50%;display:block;box-shadow:0 0 0 1.5px #fff}.pdots i.vac{border:1.5px dashed var(--gray);background:transparent;width:7px;height:7px}
 .lvl-cards{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:10px}
 .lvl-card{background:#fff;border:0;border-radius:14px;box-shadow:var(--shadow);padding:12px 14px;text-align:left;border-top:5px solid var(--c,var(--deep));display:flex;flex-direction:column;gap:2px;font:inherit;color:var(--ink);cursor:pointer}
 .lvl-card b{font:700 26px Roboto,sans-serif;color:var(--ink)}.lvl-card span{font-weight:700;font-size:13px}.lvl-card small{font-size:11px;color:var(--muted)}
@@ -246,7 +247,7 @@ table.mini.wide{width:100%}table.mini.wide th{width:auto;color:var(--muted);back
 .perfil-box{margin-top:12px;background:var(--tint);border-radius:10px;padding:10px 12px;font-size:13px}.perfil-box b{display:block;font-size:12px;color:var(--deep);margin-bottom:3px}
 .cand-score{position:sticky;top:-22px;z-index:2;background:#fff;border-bottom:1px solid var(--line);padding:4px 0 10px;margin-bottom:4px;min-height:44px;display:flex;flex-direction:column;gap:4px}
 .alerta{display:grid;grid-template-columns:110px 1fr auto;gap:14px;align-items:center;background:#fff;border-radius:14px;box-shadow:var(--shadow);padding:14px 16px;margin-bottom:10px;border-left:6px solid var(--gray);font-size:13.5px}
-.alerta.baj{border-left-color:#FF661B}.alerta.rie{border-left-color:#FFA26B}.alerta.ok{opacity:.7}
+.alerta.baj{border-left-color:#DC2626}.alerta.rie{border-left-color:#F59E0B}.alerta.ok{opacity:.7}
 .al-prio{display:flex;flex-direction:column;gap:6px;align-items:flex-start}.al-body>div{margin-top:3px}
 .vac-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:16px}
 .card.vac{display:flex;flex-direction:column;gap:6px;border-top:5px solid var(--orange)}
@@ -554,10 +555,10 @@ const openModal=id=>$(id).classList.add("open"),closeModal=id=>$(id).classList.r
 const W=214,H=98,GX=26,GY=66,PX=28,PAL=["#1D7EAE","#0032A0","#FF661B","#231F20","#98DAE9","#BDC6C3"];
 const LV=["Dirección","Gerencias","Coordinación y supervisión","Operativo"];
 // Color de cada nivel de la jerarquía (del manual de identidad): Dirección, Gerencias, Coordinación, Operativo
-const LVC=["#0032A0","#1D7EAE","#98DAE9","#BDC6C3"];
+const LVC=["#0032A0","#FF661B","#0D9488","#7C3AED"];
 // Organigramas de 5 niveles o más (por ejemplo, con direcciones de área entre la dirección general y las gerencias)
 const LV5=["Dirección general","Direcciones de área","Gerencias","Coordinación y especialistas","Operativo"];
-const LVC5=["#0032A0","#1D7EAE","#98DAE9","#BDC6C3","#231F20"];
+const LVC5=["#0032A0","#FF661B","#0D9488","#7C3AED","#64748B"];
 // Niveles reales del organigrama (sin importar qué equipos estén contraídos) y sus nombres y colores
 const profundidad=()=>puestos.length?Math.max(...puestos.map(p=>{let d=1,x=p;while(byId(x.parent)&&d<50){x=byId(x.parent);d++}return d})):0;
 const nivelesOrg=()=>profundidad()>4?{nom:LV5,col:LVC5}:{nom:LV,col:LVC};
@@ -580,13 +581,16 @@ function renderOrg(){
   const cw=Math.max(leaf*(W+GX)-GX+PX*2,300),rowH=H+GY,ch=(maxD+1)*rowH;
   const top=d=>d*rowH+GY/2;let paths="",nodes="",bands="",lv="";const N=nivelesOrg(),ult=N.nom.length-1;
   for(let d=0;d<=maxD;d++){
-    bands+=`<div class="band" style="top:${d*rowH}px;height:${rowH}px"></div>`;
-    lv+=`<div style="height:${rowH}px;box-shadow:inset 5px 0 0 ${N.col[Math.min(d,ult)]}"><b>Nivel ${d+1}</b><small>${N.nom[Math.min(d,ult)]}</small></div>`;
+    const cn=N.col[Math.min(d,ult)];
+    // cada nivel pinta su fila completa con un fondo suave (hex + alfa) y una franja gruesa en la columna de niveles
+    bands+=`<div class="band" style="top:${d*rowH}px;height:${rowH}px;background:${cn}12"></div>`;
+    lv+=`<div style="height:${rowH}px;background:${cn}1F;box-shadow:inset 9px 0 0 ${cn}"><b style="color:${cn}">Nivel ${d+1}</b><small>${N.nom[Math.min(d,ult)]}</small></div>`;
   }
   puestos.forEach(p=>{
     const q=pos[p.id];if(!q)return;const x=q.x+PX,y=top(q.d),c=modoColor==="desempeno"&&typeof colorPuesto==="function"?colorPuesto(p.id):color(p.dept),n=(m[p.id]||[]).length;
     (m[p.id]||[]).forEach(k=>{const r=pos[k.id];if(!r)return;const px=x+W/2,py=y+H,cx=r.x+PX+W/2;paths+=`<path d="M${px} ${py}V${py+GY/2}H${cx}V${top(r.d)}"/>`});
-    nodes+=`<div class="node${p===root?" root":""}${focusDept&&focusDept!==p.dept?" dim":""}" tabindex="0" role="button" data-id="${p.id}" style="left:${x}px;top:${y}px;width:${W}px;height:${H}px"><span class="bar" style="background:${c}"></span>
+    const perf=modoColor==="desempeno"&&typeof estiloPuesto==="function";
+    nodes+=`<div class="node${p===root?" root":""}${perf?" perf":""}${focusDept&&focusDept!==p.dept?" dim":""}" tabindex="0" role="button" data-id="${p.id}" style="left:${x}px;top:${y}px;width:${W}px;height:${H}px${perf?";"+estiloPuesto(p.id):""}"><span class="bar" style="background:${c}"></span>
       <div class="t">${esc(p.name)}</div><div class="dp">${esc(p.dept)}${typeof puntosPuesto==="function"?puntosPuesto(p):""}</div>
       <div class="ft">${modoColor==="desempeno"&&typeof resumenPuesto==="function"?resumenPuesto(p):`<span><i class="dot" style="background:${p.status==="Completa"?"#1D7EAE":"#FF661B"}"></i>${esc(p.status)}</span>`}${n?`<button class="tg" data-t="${p.id}" title="${collapsed.has(p.id)?"Mostrar":"Ocultar"} equipo">${collapsed.has(p.id)?"▸":"▾"} ${n}</button>`:""}</div></div>`;
   });
