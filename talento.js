@@ -133,7 +133,7 @@ function renderEstructura() {
         ${incompletos.length ? `<div class="tw"><table><thead><tr><th>Puesto</th><th>Le falta</th><th></th></tr></thead><tbody>${incompletos.map(p => `<tr><td><b>${esc(p.name)}</b><br><span class="note">${esc(p.dept)}</span></td><td>${faltaDe(p).map(f => `<span class="tag warn" style="margin:2px 4px 2px 0">${f}</span>`).join("")}</td><td>${ed ? `<button class="btn small" onclick="openEditPuesto(${p.id})">Completar</button>` : ""}</td></tr>`).join("")}</tbody></table></div>`
           : '<div class="empty">Todos los puestos tienen propósito, funciones e indicadores.</div>'}</div>
       <div class="card"><div class="sh"><h3>Niveles y tramo de control</h3></div>
-        <div class="lvl-legend">${LV.map((n, i) => `<span><i style="background:${LVC[i]}"></i>Nivel ${i + 1}${i === 3 ? " o más" : ""} · ${n}</span>`).join("")}</div>
+        <div class="lvl-legend">${(N => N.nom.map((n, i) => `<span><i style="background:${N.col[i]}"></i>Nivel ${i + 1}${i === N.nom.length - 1 ? " o más" : ""} · ${n}</span>`).join(""))(nivelesOrg())}</div>
         ${tramo.length ? tramo.map(x => `<div class="li"><div><strong>${esc(x.p.name)}</strong><span class="s">${x.n > 8 ? `${x.n} subordinados directos: tramo amplio, considera un nivel de coordinación.` : "Solo 1 subordinado directo: revisa si este nivel es necesario o si puede absorber más equipo."}</span></div><span class="tag warn">${x.n}</span></div>`).join("")
           : '<p class="note">Ningún jefe tiene demasiados subordinados directos (más de 8) ni uno solo.</p>'}</div>
     </div>`;

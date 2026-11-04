@@ -489,6 +489,7 @@ const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&
 const store={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch{return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
 // Cuentas de prueba (solo para llenar el formulario; la validación la hace el servidor)
 const USERS=[
+  {g:"Empresa Code (ejemplo completo para revisiones)",e:"admin@empresacode.mx",r:"Administrador"},{g:"Empresa Code (ejemplo completo para revisiones)",e:"rh@empresacode.mx",r:"Recursos Humanos"},{g:"Empresa Code (ejemplo completo para revisiones)",e:"calidad@empresacode.mx",r:"Calidad"},{g:"Empresa Code (ejemplo completo para revisiones)",e:"direccion@empresacode.mx",r:"Dirección"},
   {g:"Empresa Demo",e:"admin@empresademo.mx",r:"Administrador"},{g:"Empresa Demo",e:"rh@empresademo.mx",r:"Recursos Humanos"},{g:"Empresa Demo",e:"calidad@empresademo.mx",r:"Calidad"},{g:"Empresa Demo",e:"direccion@empresademo.mx",r:"Dirección"},
   {g:"Manufacturas del Norte",e:"admin@manufacturasnorte.mx",r:"Administrador"},{g:"Manufacturas del Norte",e:"rh@manufacturasnorte.mx",r:"Recursos Humanos"},{g:"Manufacturas del Norte",e:"calidad@manufacturasnorte.mx",r:"Calidad"},
   {g:"IOT Technologies (plataforma)",e:"superadmin@plataforma-do.mx",r:"Súper administrador"}];
@@ -522,6 +523,8 @@ async function startSession(u){
 function endSession(msg){usuario=null;puestos=[];if(typeof setModData==="function")setModData({});document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open"));$("app").hidden=true;$("login").hidden=false;$("lPass").value="";$("lErr").textContent=msg||""}
 $("demoBtns").innerHTML=[...new Set(USERS.map(u=>u.g))].map(g=>`<div class="demo-emp"><small>${g}</small>${USERS.map((u,i)=>u.g===g?`<button type="button" class="btn small" data-u="${i}">${u.r}</button>`:"").join("")}</div>`).join("");
 $("demoBtns").onclick=e=>{const b=e.target.closest("[data-u]");if(!b)return;$("lEmail").value=USERS[b.dataset.u].e;$("lPass").value=PASS;$("lErr").textContent=""};
+// Por defecto, el Administrador de Empresa Code ya viene escrito: solo hay que pulsar "Entrar"
+$("lEmail").value=USERS[0].e;$("lPass").value=PASS;
 $("pwBtn").onclick=()=>{const p=$("lPass"),s=p.type==="password";p.type=s?"text":"password";$("pwBtn").textContent=s?"Ocultar":"Mostrar"};
 $("forgot").onclick=e=>{e.preventDefault();alert("En el prototipo no hay recuperación de contraseña.")};
 $("loginForm").onsubmit=async e=>{
@@ -552,6 +555,12 @@ const W=214,H=98,GX=26,GY=66,PX=28,PAL=["#1D7EAE","#0032A0","#FF661B","#231F20",
 const LV=["Dirección","Gerencias","Coordinación y supervisión","Operativo"];
 // Color de cada nivel de la jerarquía (del manual de identidad): Dirección, Gerencias, Coordinación, Operativo
 const LVC=["#0032A0","#1D7EAE","#98DAE9","#BDC6C3"];
+// Organigramas de 5 niveles o más (por ejemplo, con direcciones de área entre la dirección general y las gerencias)
+const LV5=["Dirección general","Direcciones de área","Gerencias","Coordinación y especialistas","Operativo"];
+const LVC5=["#0032A0","#1D7EAE","#98DAE9","#BDC6C3","#231F20"];
+// Niveles reales del organigrama (sin importar qué equipos estén contraídos) y sus nombres y colores
+const profundidad=()=>puestos.length?Math.max(...puestos.map(p=>{let d=1,x=p;while(byId(x.parent)&&d<50){x=byId(x.parent);d++}return d})):0;
+const nivelesOrg=()=>profundidad()>4?{nom:LV5,col:LVC5}:{nom:LV,col:LVC};
 let modoColor="dept";
 const depts=()=>[...new Set(puestos.map(p=>p.dept))];
 const color=d=>PAL[depts().indexOf(d)%PAL.length];
@@ -569,10 +578,10 @@ function renderOrg(){
     if(!ks.length){pos[n.id]={x:leaf++*(W+GX),d}}else{ks.forEach(k=>walk(k,d+1));pos[n.id]={x:(pos[ks[0].id].x+pos[ks[ks.length-1].id].x)/2,d}}
   })(root,0);
   const cw=Math.max(leaf*(W+GX)-GX+PX*2,300),rowH=H+GY,ch=(maxD+1)*rowH;
-  const top=d=>d*rowH+GY/2;let paths="",nodes="",bands="",lv="";
+  const top=d=>d*rowH+GY/2;let paths="",nodes="",bands="",lv="";const N=nivelesOrg(),ult=N.nom.length-1;
   for(let d=0;d<=maxD;d++){
     bands+=`<div class="band" style="top:${d*rowH}px;height:${rowH}px"></div>`;
-    lv+=`<div style="height:${rowH}px;box-shadow:inset 5px 0 0 ${LVC[Math.min(d,3)]}"><b>Nivel ${d+1}</b><small>${LV[Math.min(d,3)]}</small></div>`;
+    lv+=`<div style="height:${rowH}px;box-shadow:inset 5px 0 0 ${N.col[Math.min(d,ult)]}"><b>Nivel ${d+1}</b><small>${N.nom[Math.min(d,ult)]}</small></div>`;
   }
   puestos.forEach(p=>{
     const q=pos[p.id];if(!q)return;const x=q.x+PX,y=top(q.d),c=modoColor==="desempeno"&&typeof colorPuesto==="function"?colorPuesto(p.id):color(p.dept),n=(m[p.id]||[]).length;
@@ -787,8 +796,7 @@ resetChat();
 function updateStats(){
   $("statDept").textContent=depts().length;$("statPuestos").textContent=puestos.length;
   $("statComplete").textContent=puestos.filter(p=>p.status==="Completa").length;
-  const depth=p=>{let d=1,x=p;while(byId(x.parent)&&d<50){x=byId(x.parent);d++}return d};
-  $("statLv").textContent=puestos.length?Math.max(...puestos.map(depth)):0;
+  $("statLv").textContent=profundidad();
 }
 $("aiResult").innerHTML=EMPTY;fillParents();
 document.addEventListener("keydown",e=>{if(e.key==="Escape")document.querySelectorAll(".modal.open").forEach(m=>m.classList.remove("open"))});
